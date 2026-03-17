@@ -1,9 +1,14 @@
 import express, { Request, Response } from "express";
 
-const app = express()
+const app = express();
 
 // TODO : controller & service & repository
 // TODO : declare router here
+// TODO : dev mysql 연결
+
+// app.js -> models/index.js - db server connection - models/article.js(모델파일) 동기화 -> article 물리 테이블 생성
+
+// let
 
 app.get("/", (_: Request, res: Response) => {
   res.send("Hello World")
