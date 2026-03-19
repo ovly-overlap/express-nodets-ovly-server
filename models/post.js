@@ -1,3 +1,4 @@
+// npx sequelize db:create --env development
 
 // TODO : ts로 변경해야하는지 여부 검토
 export default function(sequelize, DataTypes){
