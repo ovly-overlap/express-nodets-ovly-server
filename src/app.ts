@@ -1,4 +1,14 @@
 import express, { Request, Response } from "express";
+import db from '../db/models';
+
+db.sequelize
+  .sync({ force: false })
+  .then(() => {
+    console.log('✅ DB Connected!');
+  })
+  .catch((err: Error) => {
+    console.error(err);
+  });
 
 const app = express();
 

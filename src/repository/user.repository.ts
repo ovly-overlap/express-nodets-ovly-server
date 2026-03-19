@@ -13,3 +13,4 @@ export const findUserById = async (id: number) => {
 export const findByEmail = (email: string) => {
   return User.findOne({ where: { email } })
 }
+

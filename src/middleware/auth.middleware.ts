@@ -1,11 +1,19 @@
-import {getSession} from "@auth/express";
+import { getSession } from "@auth/express";
+import { NextFunction } from "express";
 
- 
-// TODO : app.ts에서 use 등록
-export function authSession(req: Request, res: Response, next: NextFunction) {
-  res.locals.session = await getSession(req)
+
+// middleware/auth.middleware.ts
+export const authMiddleware = (req:Request, res:Response, next:NextFunction) => {
+  const token = req.headers.authorization;
+
+  if (!token) {
+    return res.status(401).json({ message: 'Unauthorized' })
+  }
+
+  req.user = decodeToken(token)
   next()
 }
+
 
 export async function authenticatedUser(
   req: Request,

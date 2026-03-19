@@ -15,6 +15,13 @@ const env = _env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
+// let sequelize = new sequelize(
+//   config[env].database,
+//   config[env].user,
+//   config[env].password,
+//   config[env]
+// );
+
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(_env[config.use_env_variable], config);
@@ -36,6 +43,8 @@ readdirSync(__dirname)
     db[model.name] = model;
   });
 
+
+// 모델 간 관계 
 Object.keys(db).forEach(modelName => {
   if (db[modelName].associate) {
     db[modelName].associate(db);
