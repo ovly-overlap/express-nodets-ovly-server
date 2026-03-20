@@ -1,7 +1,8 @@
 // controllers/auth.controller.ts
+import { SignupRequestDTO } from '../dto/signupReq.dto.ts';
 import * as authService from '../services/auth.service.js';
 
-export const register = async (req, res) => {
+export const register = async (req :SignupRequestDTO, res) => {
   const user = await authService.register(req.body)
   res.json(user)
 }

@@ -1,8 +1,9 @@
 import { Optional } from 'sequelize';
-import { Table, Model } from 'sequelize-typescript';
+import { Table, Model, AutoIncrement, PrimaryKey } from 'sequelize-typescript';
 
 interface UserAttributes {
   id: number;
+  email: string;
   name: string;
   pw: string;
 }
@@ -12,7 +13,10 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 
 @Table
 class User extends Model<UserAttributes, UserCreationAttributes>{
+  @AutoIncrement
+  @PrimaryKey
   public id!: number;
+  public email!: string;
   public name!: string;
   public pw!: string;
 }

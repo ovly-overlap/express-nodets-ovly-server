@@ -1,5 +1,7 @@
-import * as User from "../models/user.js";
-// 시퀄라이즈 모델에 접근
+import User from "../models/user.js";
+
+// TODO : 인증 인가 기능
+// TODO : 쿠키 반환
 
 export const findAllUsers = async () => {
   return await User.findAll()
@@ -13,3 +15,7 @@ export const findByEmail = (email: string) => {
   return User.findOne({ where: { email } })
 }
 
+// ! user 생성 로직 오류 가능성
+export const createUser = ({password, ...data}) => User.create(data, password);
+
+// export const findByToken: any(token);
