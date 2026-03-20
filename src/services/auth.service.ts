@@ -6,6 +6,7 @@ import { SignupRequestDTO } from '../dto/signupReq.dto.js';
 import bcrypt from 'bcrypt';
 import { generateToken } from '../util/jwt.js';
 
+
 // TODO : (data: SignupRequestDTO) 으로 변경 후 테스트
 export const register = async (data: SignupRequestDTO) => {
   const existing = await authRepository.findByEmail(data.email)
@@ -21,6 +22,7 @@ export const register = async (data: SignupRequestDTO) => {
 }
 
 // TODO : 테스트 후 LoginReq.dto 제작 후 적용
+// TODO : 토큰을 쿠키 적용
 export const login = async ({ email, password }) => {
   const user = await authRepository.findByEmail(email);
   if (!user) throw new Error('유저 없음');
@@ -31,3 +33,7 @@ export const login = async ({ email, password }) => {
   const token = generateToken({ id: user.id });
   return { token };
 }
+
+// export const logout = async (data: any) => {
+    
+// }

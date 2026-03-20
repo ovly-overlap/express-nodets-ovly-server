@@ -6,23 +6,30 @@ export const authMiddleware = (req:Request, res:Response, next:express.NextFunct
   const token = req.headers.authorization;
 
   if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' })
+    return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  // 디코딩
-
   try {
-    const decoded = verifyToken(token)
+    const decoded = verifyToken(token);
     // userService.getMyData(req.user.id) 이런식으로 앞으로 사용
-    req.user = decoded  
+    req.user = decoded;
     // req.user = decodeToken(token)
     next()
   } catch (err) {
-    return res.status(401).json({ message: '토큰 오류' })
+    return res.status(401).json({ message: '토큰 오류' });
   }
-  next()
+  next();
 }
 
+
+/**
+ * 로그인 실패 
+ * > 
+ * 
+ * 로그인 성공
+ * 서버가 JWT 발급 > 쿠키에 저장 > 이후 요청에 쿠키 자동포함 > 미들웨어에서 JWT 꺼내서 검증 > 유저 인증
+ * 
+ */
 
 
 // const { User } = require('../models/User');

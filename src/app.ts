@@ -1,5 +1,8 @@
-import express, { Request, Response } from "express";
-import db from '../db/models';
+import express from "express";
+import db from '../db/models/index.js';
+import cookieParser from "cookie-parser";
+
+const app = express();
 
 db.sequelize
   .sync({ force: false })
@@ -10,7 +13,6 @@ db.sequelize
     console.error(err);
   });
 
-const app = express();
 
 // TODO : controller & service & repository
 // TODO : declare router here
@@ -21,6 +23,7 @@ app.use((req, res, next) => {
   console.log('요청 들어옴');
   next();
 });
+app.use(cookieParser());
 app.use(express.json());
 app.use(cors());
 // app.use(authMiddleware); // 전체 인증
