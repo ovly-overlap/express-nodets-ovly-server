@@ -24,15 +24,24 @@ export const register = async (data: SignupRequestDTO) => {
 // TODO : 테스트 후 LoginReq.dto 제작 후 적용
 // TODO : 토큰을 쿠키 적용
 export const login = async ({ email, password }) => {
+  // const {userEmail, password} = req.body;
   const user = await authRepository.findByEmail(email);
-  if (!user) throw new Error('유저 없음');
+  if (!user) throw new Error('존재하지 않는 사용자');
 
   const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) throw new Error('비밀번호 틀림');
+  // if (!isMatch) throw new Error('비밀번호 틀림');
+  if(isMatch){
+    const token = jwt.sign({  // 이메일, 이름, 로그인 타임
+      userEmail: email,
+      loginTime: new Date().toISOString()
+    }, "secret", {expiresIn: '30m'});
+    console.log(email, "로그인", Date.now());
+    return {token};
+  } 
+  else{
+    throw new Error("로그인오류 : 비밀번호 확인좀");
+  }
 
-  // const token = generateToken({ id: user.id });
-  const token = jwt.sign({});
-  return { token };
 }
 
 // export const logout = async (data: any) => {

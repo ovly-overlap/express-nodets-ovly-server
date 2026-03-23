@@ -18,6 +18,6 @@ const router = express.Router();
 //   });
 router.post("/auth/register", authController.register);
 router.get("/auth/login", authController.login);
-// router.get("/auth/logout", authController.logout);
+// router.get("/auth/logout", authController.logout); // 토큰 확인, etc
 
 export default router;
