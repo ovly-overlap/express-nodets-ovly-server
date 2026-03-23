@@ -1,5 +1,4 @@
 import express, {Response, Request} from "express";
-import { verifyToken } from '../util/jwt.js';
 import User from "../models/user.js";
 
 
