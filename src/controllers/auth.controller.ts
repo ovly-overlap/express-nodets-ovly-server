@@ -2,12 +2,13 @@
 import { SignupRequestDTO } from '../dto/signupReq.dto.ts';
 import * as authService from '../services/auth.service.js';
 
+// TODO : res type 확정
 export const register = async (req :SignupRequestDTO, res) => {
-  const user = await authService.register(req)
-  res.json(user)
+  const user = await authService.register(req);
+  res.json(user);
 }
 
 export const login = async (req: { body: any; }, res: { json: (arg0: any) => void; }) => {
-  const token = await authService.login(req.body)
-  res.json(token)
+  const token = await authService.login(req.body);
+  res.json(token);
 }

@@ -1,26 +1,39 @@
 import express, {Response, Request} from "express";
 import { verifyToken } from '../util/jwt.js';
+import User from "../models/user.js";
 
 
-export const authMiddleware = (req:Request, res:Response, next:express.NextFunction) => {
-  const token = req.headers.authorization;
+// export const authMiddleware = (req:Request, res:Response, next:express.NextFunction) => {
+//   const token = req.headers.authorization;
 
-  if (!token) {
-    return res.status(401).json({ message: 'Unauthorized' });
-  }
+//   if (!token) {
+//     return res.status(401).json({ message: 'Unauthorized' });
+//   }
 
-  try {
-    const decoded = verifyToken(token);
-    // userService.getMyData(req.user.id) 이런식으로 앞으로 사용
-    req.user = decoded;
-    // req.user = decodeToken(token)
-    next()
-  } catch (err) {
-    return res.status(401).json({ message: '토큰 오류' });
-  }
-  next();
+//   try {
+//     const decoded = verifyToken(token);
+//     // userService.getMyData(req.user.id) 이런식으로 앞으로 사용
+//     req.user = decoded;
+//     // req.user = decodeToken(token)
+//     next()
+//   } catch (err) {
+//     return res.status(401).json({ message: '토큰 오류' });
+//   }                           
+//   next();
+// }
+
+
+export const auth = (req, res, next) => {
+  let token = req.cookies.x_auth;
+  // 자동으로 토큰이 디코드 확인
+  User.findByToken(token, (err: any, user: any) =>{
+    if (err) throw err;
+    if (!user) return res.json({isAuth : false, err : true}); //유저가 없으면 인증 no.
+    req.token = token;
+    req.user = user;
+    next();
+  });
 }
-
 
 /**
  * 로그인 실패 

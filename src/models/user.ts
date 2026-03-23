@@ -13,6 +13,9 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 
 @Table
 class User extends Model<UserAttributes, UserCreationAttributes>{
+  static findByToken(token: any, arg1: (err: any, user: any) => any) {
+    throw new Error("Method not implemented.");
+  }
   @AutoIncrement
   @PrimaryKey
   public id!: number;
