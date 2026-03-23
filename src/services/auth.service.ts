@@ -4,7 +4,7 @@ import * as authRepository from "../repository/auth.repository.js";
 import { SignupRequestDTO } from '../dto/signupReq.dto.js';
 
 import bcrypt from 'bcrypt';
-import { generateToken } from '../util/jwt.js';
+import jwt from "jsonwebtoken";
 
 
 // TODO : (data: SignupRequestDTO) 으로 변경 후 테스트
@@ -30,7 +30,8 @@ export const login = async ({ email, password }) => {
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) throw new Error('비밀번호 틀림');
 
-  const token = generateToken({ id: user.id });
+  // const token = generateToken({ id: user.id });
+  const token = jwt.sign({});
   return { token };
 }
 

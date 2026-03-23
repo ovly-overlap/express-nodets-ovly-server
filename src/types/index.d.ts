@@ -1,14 +1,12 @@
-// import { type Session } from "express";
-// import { Request } from 'express';
+// types/express.d.ts
+import { AuthUser } from './auth.types.js';
 
-declare module 'express-serve-static-core' {
-  interface Request {
-    user?: {
-      _id: string
-      email: string
-      name: string
-      group: number
-      image?: string
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthUser
     }
   }
 }
+
+export {}

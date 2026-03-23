@@ -1,6 +1,6 @@
-import express, {Response, Request} from "express";
 import User from "../models/user.js";
-
+import jwt from "jsonwebtoken";
+import { NextFunction, Request, Response } from "express";
 
 // export const authMiddleware = (req:Request, res:Response, next:express.NextFunction) => {
 //   const token = req.headers.authorization;
@@ -21,7 +21,23 @@ import User from "../models/user.js";
 //   next();
 // }
 
+// 
 
+export const authMiddleware = (req:Request, res:Response, next:NextFunction) : Response => {
+  const token = req.cookies.token;
+  if (!token) {
+    return res.status(401).json({ message: "로그인 필요" });
+  }
+  try {
+    const decoded = jwt.verify(token, "secretKey");
+    req.user = decoded;
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "토큰 오류" });
+  }
+};
+
+// 토큰 확인
 export const auth = (req, res, next) => {
   let token = req.cookies.x_auth;
   // 자동으로 토큰이 디코드 확인
