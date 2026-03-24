@@ -1,39 +1,22 @@
 import User from "../models/user.js";
-import jwt from "jsonwebtoken";
+import jwt, {JwtPayload, Secret} from "jsonwebtoken";
 import { NextFunction, Request, Response } from "express";
 
-// export const authMiddleware = (req:Request, res:Response, next:express.NextFunction) => {
-//   const token = req.headers.authorization;
 
-//   if (!token) {
-//     return res.status(401).json({ message: 'Unauthorized' });
-//   }
 
-//   try {
-//     const decoded = verifyToken(token);
-//     // userService.getMyData(req.user.id) 이런식으로 앞으로 사용
-//     req.user = decoded;
-//     // req.user = decodeToken(token)
-//     next()
-//   } catch (err) {
-//     return res.status(401).json({ message: '토큰 오류' });
-//   }                           
-//   next();
-// }
-
-// 
-
-export const authMiddleware = (req:Request, res:Response, next:NextFunction) : Response => {
+export const authMiddleware = (req:Request, res:Response, next:NextFunction) : void => {
   const token = req.cookies.token;
   if (!token) {
-    return res.status(401).json({ message: "로그인 필요" });
+    res.status(401).json({ message: "Unauthorized" });
+    return;
   }
   try {
     const decoded = jwt.verify(token, "secretKey");
     // req.user = decoded;
     next();
   } catch (err) {
-    return res.status(401).json({ message: "토큰 오류" });
+    res.status(401).json({ message: "bad request" });
+    return; 
   }
 };
 
