@@ -30,7 +30,7 @@ export const authMiddleware = (req:Request, res:Response, next:NextFunction) : R
   }
   try {
     const decoded = jwt.verify(token, "secretKey");
-    req.user = decoded;
+    // req.user = decoded;
     next();
   } catch (err) {
     return res.status(401).json({ message: "토큰 오류" });
