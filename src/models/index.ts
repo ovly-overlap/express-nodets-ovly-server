@@ -19,7 +19,7 @@ Object.keys(db).forEach(modelName => {
   }
 });
 
-db.Sequelize = Sequelize;
+db.Sequelize = sequelize;
 
 // db.Article = require('./article.js')(sequelize,Sequelize);
 // 오류 가능성

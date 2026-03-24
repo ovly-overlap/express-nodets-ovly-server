@@ -7,6 +7,7 @@ import { LoginReqDTO } from "../dto/login.dto.ts";
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
 
+// TODO : 로그아웃 
 
 // TODO : (data: SignupRequestDTO) 으로 변경 후 테스트
 export const register = async (data: SignupRequestDTO) => {
