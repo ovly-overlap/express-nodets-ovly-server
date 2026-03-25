@@ -2,7 +2,7 @@ import 'reflect-metadata';
 import { Optional } from 'sequelize';
 import {Table, Model, Column, DataType, Default, PrimaryKey, AutoIncrement, DeletedAt, AllowNull} from 'sequelize-typescript';
 
-interface NewsAttributes{
+interface ArticleAttributes{
     id: number;
     article_title: string;
     article_source: string;
@@ -15,14 +15,14 @@ interface NewsAttributes{
 
 // 생성할때 id랑 기본값 필드 선택사항으로 하기
 // interface NewsCreationAttributes extends Optional<NewsAttributes, 'id'>{}
-interface NewsCreationAttributes extends Optional<NewsAttributes, 'id' | 'click_count' | 'deleted_at'> {}
+interface ArticleCreationAttributes extends Optional<ArticleAttributes, 'id' | 'click_count' | 'deleted_at'> {}
 
 @Table({
     tableName: 'news',
     timestamps: true,
     paranoid: true,
 })
-class News extends Model<NewsAttributes, NewsCreationAttributes>{ //  implements  NewsAttributes
+class News extends Model<ArticleAttributes, ArticleCreationAttributes>{ //  implements  NewsAttributes
 
     // static associate(models){
     //     this.hasMany(models.Post, {foreignKey: 'userId', sourceKey: 'id'});
