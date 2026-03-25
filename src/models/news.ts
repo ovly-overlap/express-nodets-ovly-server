@@ -23,6 +23,10 @@ interface NewsCreationAttributes extends Optional<NewsAttributes, 'id' | 'click_
     paranoid: true,
 })
 class News extends Model<NewsAttributes, NewsCreationAttributes>{ //  implements  NewsAttributes
+
+    // static associate(models){
+    //     this.hasMany(models.Post, {foreignKey: 'userId', sourceKey: 'id'});
+    // }
     @Column({type:DataType.INTEGER})
     @PrimaryKey
     @AutoIncrement
