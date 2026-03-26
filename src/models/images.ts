@@ -15,6 +15,7 @@ export enum TargetType {
 class Images extends Model{
     @AutoIncrement
     @PrimaryKey
+    @Column
     id!:number;
 
     @AllowNull(false)
@@ -29,7 +30,7 @@ class Images extends Model{
     })
     image_url!: string;
 
-    @Default(0)
+    @Default(-1)
     @Column({
         type:DataType.SMALLINT
     })

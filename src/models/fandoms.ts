@@ -7,6 +7,7 @@ import UserFandoms from "./user_fandoms.ts";
 class Fandoms extends Model{
     @AutoIncrement
     @PrimaryKey
+    @Column
     id!:number;
 
     @Column

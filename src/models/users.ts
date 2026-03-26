@@ -28,6 +28,7 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
   }
   @AutoIncrement
   @PrimaryKey
+  @Column
   id!: number;
 
   @Column

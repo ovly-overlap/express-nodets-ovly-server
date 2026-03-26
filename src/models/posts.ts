@@ -50,6 +50,9 @@ class Posts extends Model<PostAttributes, PostCreationAttributes>{
     readonly created_at!:Date;
     readonly updated_at!:Date;
     readonly deleted_at!:Date;
+
+    @BelongsTo(() => Users, "user_id")
+    author!: Users;
 }
 
 export default Posts;

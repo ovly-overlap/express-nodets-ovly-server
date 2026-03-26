@@ -7,7 +7,6 @@ import Users from "./users.ts";
 })
 class UserPostLikes extends Model{
     // TODO : index 적용 확인
-    @Index
     @PrimaryKey
     @ForeignKey(()=>Posts)
     @Column
@@ -18,7 +17,13 @@ class UserPostLikes extends Model{
     @Column
     user_id!: number;
 
-    @BelongsTo(()=>Users, ())
+    
+    @BelongsTo(()=>Users, "user_id")
+    user!: Users;
+
+    @BelongsTo(()=>Posts, "post_id")
+    post!: Posts;
+
 }
 
 export default UserPostLikes;
