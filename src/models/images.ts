@@ -1,10 +1,10 @@
 
-import { AllowNull, Column, Model, Table, DataType, PrimaryKey, AutoIncrement, Default } from "sequelize-typescript";
+import { AllowNull, Column, Model, Table, DataType, PrimaryKey, AutoIncrement, Default, BelongsTo } from "sequelize-typescript";
 
 
 // TODO : 이외 타입 찾아서 쓰기
 export enum TargetType {
-    POST, SCHEDULE, 
+    POST, SCHEDULE, PROFILE
 }
 
 @Table({
@@ -37,6 +37,8 @@ class Images extends Model{
 
 
     readonly created_at!:Date;
+
+    // @BelongsTo(()=>)
 }
 
 export default Images;

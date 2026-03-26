@@ -1,5 +1,5 @@
 
-import { Column, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
 import Fandoms from "./fandoms.ts";
 import Users from "./users.ts";
 
@@ -17,4 +17,12 @@ class UserFandoms extends Model{
     @ForeignKey(()=>Fandoms)
     @Column
     fandom_id!:number;
+
+    @BelongsTo(()=>Fandoms, "fandom_id")
+    fandom!:Fandoms;
+
+    @BelongsTo(()=>Users, "user_id")
+    user!:Users;
 }
+
+export default UserFandoms;

@@ -2,12 +2,15 @@ import { Optional } from 'sequelize';
 import { Table, Model, AutoIncrement, PrimaryKey, Column, Unique, AllowNull, DataType, BelongsToMany, HasMany } from 'sequelize-typescript';
 import UserFollows from "./user_follows.ts";
 import Posts from "./posts.ts";
+import UserPostLikes from './user_post_likes.ts';
+import UserFandoms from './user_fandoms.ts';
 
 interface UserAttributes {
   id: number;
-  email: string;
-  name: string;
   password: string;
+  name: string;
+  intro: string;
+
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -16,6 +19,7 @@ interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
 @Table({
   tableName: "users",
   createdAt: "created_at",
+  updatedAt: "updated_at",
   timestamps: true,
 })
 class Users extends Model<UserAttributes, UserCreationAttributes>{
@@ -47,8 +51,16 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
   @BelongsToMany(() => Users, () => UserFollows, 'following_id', 'follower_id')
   followers!: Users[];
 
-  @HasMany(()=> Posts)
+  @HasMany(()=> Posts, "user_id")
   posts!: Posts[];
+
+  @HasMany(()=> UserPostLikes, "user_id") // TODO: 이렇게 써도 되는건지 확인좀
+  userPostLikes!: UserPostLikes[];
+
+  @HasMany(()=> UserFandoms, "user_id")
+  userFandoms!: UserFandoms[];
+
+  
 }
 
 export default Users;
