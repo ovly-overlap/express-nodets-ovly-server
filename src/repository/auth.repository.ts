@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import User from "../models/users.ts";
 
 // TODO : 인증 인가 기능
 // TODO : 쿠키 반환

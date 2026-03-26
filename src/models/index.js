@@ -1,5 +1,7 @@
 'use strict';
 
+// TODO: check sequelize <-> sequelize-ts conplict
+
 import { readdirSync } from 'fs';
 import { basename as _basename, join } from 'path';
 import Sequelize, { DataTypes } from 'sequelize';

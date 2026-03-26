@@ -9,9 +9,9 @@ import jwt from "jsonwebtoken";
 
 // TODO : 로그아웃 
 
-// TODO : (data: SignupRequestDTO) 으로 변경 후 테스트
+// TODO : 한국어 이름/아이디에 관한 중복 검사 이후 가입
 export const register = async (data: SignupRequestDTO) => {
-  const existing = await authRepository.findByEmail(data.email)
+  const existing = await authRepository.findByEmail(data.email);
   if (existing) {
     throw new Error('이미 존재하는 유저');
   }

@@ -17,16 +17,14 @@ interface ArticleAttributes{
 // interface NewsCreationAttributes extends Optional<NewsAttributes, 'id'>{}
 interface ArticleCreationAttributes extends Optional<ArticleAttributes, 'id' | 'click_count' | 'deleted_at'> {}
 
-@Table({
-    tableName: 'news',
+@Table({ // 하드삭제 paranoid no
+    tableName: 'articles',
     timestamps: true,
-    paranoid: true,
+    deletedAt: "deleted_at",
+    createdAt: "created_at"
 })
-class News extends Model<ArticleAttributes, ArticleCreationAttributes>{ //  implements  NewsAttributes
 
-    // static associate(models){
-    //     this.hasMany(models.Post, {foreignKey: 'userId', sourceKey: 'id'});
-    // }
+class Articles extends Model<ArticleAttributes, ArticleCreationAttributes>{ //  implements  ArticleAttributes
     @Column({type:DataType.INTEGER})
     @PrimaryKey
     @AutoIncrement
@@ -51,14 +49,14 @@ class News extends Model<ArticleAttributes, ArticleCreationAttributes>{ //  impl
     @AllowNull(false)
     @Column({type:DataType.INTEGER})
     @Default(0)
-    click_count!: number;
+    views!: number;
 
     @AllowNull(false)
     @Column({type:DataType.DATE})
     scraped_at!: Date;
 
-    @DeletedAt
-    deleted_at!: Date;
+    readonly created_at: Date;
+    readonly deleted_at: Date;
 }
 
-export default News;
+export default Articles;
