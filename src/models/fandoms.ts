@@ -14,7 +14,6 @@ class Fandoms extends Model{
 
     @Column
     image_url!:string;
-
     
     @HasMany(()=>UserFandoms)
     userFandoms!:UserFandoms;

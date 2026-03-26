@@ -1,4 +1,4 @@
-import {Column, ForeignKey, Index, Model, PrimaryKey, Table} from "sequelize-typescript";
+import {BelongsTo, Column, ForeignKey, Index, Model, PrimaryKey, Table} from "sequelize-typescript";
 import Posts from "./posts.ts";
 import Users from "./users.ts";
 
@@ -17,6 +17,8 @@ class UserPostLikes extends Model{
     @ForeignKey(()=>Users)
     @Column
     user_id!: number;
+
+    @BelongsTo(()=>Users, ())
 }
 
 export default UserPostLikes;

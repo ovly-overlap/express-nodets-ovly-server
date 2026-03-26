@@ -8,9 +8,9 @@ import UserFandoms from './user_fandoms.ts';
 interface UserAttributes {
   id: number;
   password: string;
+  profile_image_url: string;
   name: string;
   intro: string;
-
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
@@ -38,11 +38,14 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
   @Column(DataType.STRING(50))
   name!: string;
 
+  @Column
+  profile_image_url!: string;
 
   @Column(DataType.STRING(70))
   intro!: string;  
 
   readonly created_at!:Date;
+
 
 
   @BelongsToMany(() => Users, () => UserFollows, 'follower_id', 'following_id')
@@ -59,8 +62,6 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
 
   @HasMany(()=> UserFandoms, "user_id")
   userFandoms!: UserFandoms[];
-
-  
 }
 
 export default Users;
