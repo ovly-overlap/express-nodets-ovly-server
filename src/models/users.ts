@@ -11,8 +11,12 @@ interface UserAttributes {
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
   // 만들때 id없어되길 바라며 씀
 
-@Table
-class User extends Model<UserAttributes, UserCreationAttributes>{
+@Table({
+  tableName: "users",
+  createdAt: "created_at",
+  timestamps: true,
+})
+class Users extends Model<UserAttributes, UserCreationAttributes>{
   static findByToken(token: any, arg1: (err: any, user: any) => any) {
     throw new Error("Method not implemented.");
   }
@@ -21,7 +25,9 @@ class User extends Model<UserAttributes, UserCreationAttributes>{
   public id!: number;
   public email!: string;
   public name!: string;
-  public password!: string;
+  public password!: string; // 처리 필요
+
+  readonly created_at!:Date;
 }
 
-export default User;
+export default Users;

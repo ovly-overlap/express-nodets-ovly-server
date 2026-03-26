@@ -21,6 +21,8 @@ interface NewsCreationAttributes extends Optional<NewsAttributes, 'id' | 'click_
     tableName: 'news',
     timestamps: true,
     paranoid: true,
+    deletedAt: "deleted_at",
+    createdAt: "created_at"
 })
 class News extends Model<NewsAttributes, NewsCreationAttributes>{ //  implements  NewsAttributes
     @Column({type:DataType.INTEGER})
@@ -53,8 +55,8 @@ class News extends Model<NewsAttributes, NewsCreationAttributes>{ //  implements
     @Column({type:DataType.DATE})
     scraped_at!: Date;
 
-    @DeletedAt
-    deleted_at!: Date;
+    readonly created_at: Date;
+    readonly deleted_at: Date;
 }
 
 export default News;
