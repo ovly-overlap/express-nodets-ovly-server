@@ -54,7 +54,7 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
   @HasMany(()=> Posts, "user_id")
   posts!: Posts[];
 
-  @HasMany(()=> UserPostLikes, "user_id") // TODO: 이렇게 써도 되는건지 확인좀
+  @HasMany(()=> UserPostLikes, "user_id") 
   userPostLikes!: UserPostLikes[];
 
   @HasMany(()=> UserFandoms, "user_id")
