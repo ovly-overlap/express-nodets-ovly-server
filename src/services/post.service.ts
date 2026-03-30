@@ -11,7 +11,7 @@ interface UpdatePostDto {
 }
 
 export const createPost = async (userId: number) =>{
-    // TODO : 유저 게시글의 카테고리 확인
+    // TODO : 유저 게시글의 카테고리 정규화해서 테이블에 넣기
     if(await Users.findByPk(userId)){throw new Error("not exist user")};
     return await Posts.findOrCreate({where: {id:userId}});
 }
@@ -45,6 +45,9 @@ export const updatePost = async (dto : UpdatePostDto) => {
             user_id:userId
         }
     });
+    if(isUpdated===0) throw new Error("not found User or Auth");
+
+    return await Posts.findByPk(postId);
 }
 
 export const deletePost = async (postId: number, userId: number) => {

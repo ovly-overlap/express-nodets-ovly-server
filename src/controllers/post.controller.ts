@@ -3,6 +3,10 @@ import {Request, Response} from "express";
 
 // TODO : 데이터 유효성 확인 & 데이터 안정성 확인
 
+export const createLikes = async (req: Request, res:Response) =>{
+        
+}
+
 export const createPost = async (req: Request, res: Response) => {
     // TODO : 정규식 이용해서 게시글 카테고리 분류
     try{
@@ -51,7 +55,6 @@ export const deletePost = async (req: Request, res: Response) => {
     } catch (e){
         res.json(e);
     }
-
 }
 
 // export const getLikedPosts = async (req, res) => {
