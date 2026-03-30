@@ -1,6 +1,6 @@
 import express, {Response, Request} from "express";
 import { validationResult } from "express-validator";
-import userService from "../services/userService.service.ts";
+import * as userService from "../services/user.service.js";
 
 // const userService = 
 
