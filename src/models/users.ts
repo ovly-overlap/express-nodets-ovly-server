@@ -14,7 +14,7 @@ interface UserAttributes {
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
-  // 만들때 id없어되길 바라며 씀
+  // when create user, dont need ID type
 
 @Table({
   tableName: "users",
