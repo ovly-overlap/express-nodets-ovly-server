@@ -6,7 +6,7 @@ export const createImages = async (
     targetId:number, 
     userId:number, 
     transaction:Transaction
-) =>{
+) => {
     const ImagesData = imageUrls.map((url, i)=>({
         // id:postId,
         user_id: userId,
