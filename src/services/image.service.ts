@@ -1,0 +1,1 @@
+import {CreateImageDTO} from "../dto/image.dto.js";

@@ -4,7 +4,7 @@ import { AllowNull, Column, Model, Table, DataType, PrimaryKey, AutoIncrement, D
 
 // TODO : 이외 타입 찾아서 쓰기
 export enum TargetType {
-    POST, SCHEDULE, PROFILE
+    POST, PROFILE
 }
 
 @Table({

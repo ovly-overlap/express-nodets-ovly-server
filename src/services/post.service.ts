@@ -1,15 +1,10 @@
-import Posts from "../models/posts.ts";
-import UserPostLikes from "../models/user_post_likes.ts";
-import Users from "../models/users.ts";
+import { CreatePostDTO, UpdatePostDto } from "../dto/post.dto.js";
+import Posts from "../models/posts.js";
+import UserPostLikes from "../models/user_post_likes.js";
+import Users from "../models/users.js";
 
-import {col, fn, Op} from "sequelize";
+import {col, fn, Op} from "sequelize";\
 
-interface UpdatePostDto {
-  postId: number;
-  userId: number;
-  title: string;
-  content: string;
-}
 
 export const toggleLikePost = async (postId: number, userId: number) =>{
     // TODO : 트랜잭션 작동 확인
@@ -50,14 +45,37 @@ export const getLikedUserAll = async (postId:number, cursor?: number, limit: num
     return likedUsers;
 }
 
-export const createPost = async (userId: number) =>{
+export const createPost = async (userId: number, dto:CreatePostDTO) =>{
     // TODO : 유저 게시글의 카테고리 정규화해서 테이블에 넣기
     // TODO : 게시글 제목, 내용, 사진 검토
-    if(await Users.findByPk(userId)){throw new Error("not exist user")};
-    return await Posts.findOrCreate({where: {id:userId}});
+    // TODO : 내용 정규식 이용해서 게시글 카테고리 분류
+    // TODO : 사진 관련 처리
+    // if(await Users.findByPk(userId)){throw new Error("not exist user")}; // TODO : 이거 추후 리팩토링
+    // return await Posts.findOrCreate({where: {id:userId}});
+    const user = await Users.findByPk(userId);
+    if (!user) throw new Error("USER_NOT_FOUND");
+    
+    // 게시글의 제목, 내용, 사진 클린 검토 
+
+    // 유저 게시글 제목, 내용 정규화 해서 카테고리 정리
+
+    // 카테고리, 댓글 수, 하트수, 이미지의 적합도 (인물 혹은 이미지가 많으면 굿.) 등으로 파라미터 알고리즘 값 주기 (높을수록 노출도)
+
+    // 이미지 
+
+    const imageUrls = dto.image_url;
+
+    
+    const newPost = await Posts.create({
+        user_id: userId,
+        title: dto.title,
+        content: dto.content,
+        // image_url: dto.image_url,
+    })
+    return newPost;
 }
 
-export const getPostOne = async (postId: number, userId: number) =>{
+export const getPostOne = async (postId: number) =>{
     return await Posts.findByPk(postId, {
         include:[
             {
@@ -85,10 +103,9 @@ export const getPostOne = async (postId: number, userId: number) =>{
 }
 
 export const getPostAll = async (cursor?: number, limit: number = 10) => {
-    // TODO : 최다 노출 알고리즘 > 댓글이랑 하트수로 노출 파라미터가 정해짐
     const where = cursor ? {id: {[Op.lt]: cursor}} : {};
     const posts = await Posts.findAll({
-        where, order: [["id", "DESC"]], limit
+        where, order: [["id", "DESC"]], limit   // TODO : 노출 파라미터를 통한 정렬
     });
     return posts;
 }

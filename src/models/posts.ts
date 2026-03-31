@@ -11,6 +11,7 @@ interface PostAttributes{
     content: string;
     post_likes_count: number;
     comments_count: number;
+    image_count: number;
 }
 
 interface PostCreationAttributes extends Optional<PostAttributes, 'id'>{}
@@ -45,12 +46,16 @@ class Posts extends Model<PostAttributes, PostCreationAttributes>{
     content!: string;
     
     @Default(0)
-    @Column
+    @Column(DataType.NUMBER)
     post_likes_count!: number;
     
     @Default(0)
-    @Column
+    @Column(DataType.NUMBER)
     comments_count!: number;
+
+    @Default(0)
+    @Column(DataType.SMALLINT)
+    image_count!: number;
     
     readonly created_at!:Date;
     readonly updated_at!:Date;
@@ -66,6 +71,8 @@ class Posts extends Model<PostAttributes, PostCreationAttributes>{
 
     @HasMany(()=> Posts, "post_id")
     posts!: Posts[];
+
+    // TODO : image 다형성 DB 관계 연결필요 : 꼬이면 어캅니까
 }
 
 export default Posts;
