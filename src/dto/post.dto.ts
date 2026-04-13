@@ -61,7 +61,7 @@ export class PostResponseDTO extends PostDto {
             image_url: imageUrls
         }
     }
-    static fromList(posts: Posts[][], imageUrls: string[][]): PostResponseDTO[] {
+    static fromList(posts: Posts[], imageUrls: string[][]): PostResponseDTO[] {
         return posts.map(
             (post, i) => this.from(post[i], imageUrls[i])
         );   // 이거 될까될까될까?될까?될까?

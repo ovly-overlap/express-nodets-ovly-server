@@ -33,8 +33,8 @@ export const getPostOne = async (req: Request, res: Response) => {
     // const userId = req.user.id;
     const postId = Number(req.params.postId);
 
-    const post = await postService.getPostOne(postId);
-    res.json(PostResponseDTO.from(post));
+    const [post, postImages] = await postService.getPostOne(postId);
+    res.json(PostResponseDTO.from(post, postImages));
 }
 
 // TODO : 클라이언트 간 > 커서 단위로 무한 스크롤 확인
@@ -43,8 +43,8 @@ export const getPostAll = async (req: Request, res: Response) => {
     const cursor = req.params.cursor ? Number(req.params.cursor) : undefined;
     const limit = req.params.limit ? Number(req.params.limit) : 10;
 
-    const posts = await postService.getPostAll(cursor, limit); // 오류 가능성
-    res.json(PostResponseDTO.fromList(posts));
+    const [posts, postImages] = await postService.getPostAll(cursor, limit); // 오류 가능성
+    res.json(PostResponseDTO.fromList(posts, postImages));
 }
 
 export const updatePost = async (req:Request, res:Response) => {

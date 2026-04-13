@@ -7,6 +7,8 @@ import * as imageService from "./image.service.js";
 
 import {col, fn, Op, Sequelize, Transaction} from "sequelize";
 
+// TODO : Posts -> PostsDTO
+
 
 export const toggleLikePost = async (postId: number, userId: number) =>{
     // TODO : 트랜잭션 작동 확인
@@ -43,7 +45,7 @@ export const getPostLikedUserAll = async (postId:number, cursor?: number, limit:
     })
 }
 
-export const createPost = async (userId: number, dto:CreatePostDTO) : Promise<[post:Posts, postImages:string[]]> =>{
+export const createPost = async (userId: number, dto:CreatePostDTO): Promise<[post:Posts, postImages:string[]]> =>{
     return await sequelize.transaction(async (t)=>{
         // TODO : 유저 게시글의 카테고리 정규화해서 테이블에 넣기
         // TODO : 게시글 제목, 내용, 사진 검토
@@ -79,8 +81,8 @@ export const createPost = async (userId: number, dto:CreatePostDTO) : Promise<[p
     });
 }
 
-export const getPostOne = async (postId: number) =>{
-    await sequelize.transaction(async (t)=>{
+export const getPostOne = async (postId: number): Promise<[post:Posts, postImages:string[]]> =>{
+    return await sequelize.transaction(async (t)=>{
         const images = await imageService.getPostOneImages(postId, t);
         const post = await Posts.findOne({
             // where: {id:postId},
@@ -88,7 +90,7 @@ export const getPostOne = async (postId: number) =>{
             order: [['params', 'DESC']],
             transaction:t
         });
-        return {post, images}; 
+        return [post, images.map(v=>v.image_url)]; 
     });
     
     // const posts = await Posts.findAll({
@@ -107,12 +109,29 @@ export const getPostOne = async (postId: number) =>{
     // });
 }
 
-export const getPostAll = async (cursor?: number, limit: number = 10) => {
-    const where = cursor ? {id: {[Op.lt]: cursor}} : {};
-    const posts = await Posts.findAll({
-        where, order: [["id", "DESC"]], limit   // TODO : 노출 파라미터를 통한 정렬
+export const getPostAll = async (cursor?: number, limit: number = 10): Promise<{ post: Posts; images: string[] }[]> => {
+    // TODO : 노출 파라미터를 통한 정렬
+    return await sequelize.transaction(async (t)=>{
+        const where = cursor ? {id: {[Op.lt]: cursor}} : {};
+        const posts = await Posts.findAll({
+            where, 
+            order: [["id", "DESC"]], 
+            limit, 
+            transaction:t  
+        });
+        const images = (await imageService.getPostsImages(posts.map(v=>v.id), t)).map(v=>v.map(v1=>v1.image_url));
+        const imageMap = new Map<number, string[]>;
+        images.forEach((img) => {
+            if (!imageMap.has(img.post_id)) {
+                imageMap.set(img.post_id, []);
+            }
+            imageMap.get(img.post_id)!.push(img.image_url);
+        });
+        // return [posts, imageMap]; // 여기 고쳐요 ㅈ ㅂ
+        return posts.map((post)=>({
+            post, images: imageMap.get(post.id) || []
+        }));
     });
-    return posts;
 }
 
 export const updatePost = async (dto : UpdatePostDto) => {
