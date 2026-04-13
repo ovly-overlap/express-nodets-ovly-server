@@ -75,8 +75,8 @@ export const createPost = async (userId: number, dto:CreatePostDTO) : Promise<[p
             t
         );
         
-        return [post, postImages];
-    })
+        return [post, postImages.map(v=>v.image_url)];
+    });
 }
 
 export const getPostOne = async (postId: number) =>{

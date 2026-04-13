@@ -23,7 +23,7 @@ export const createPost = async (req: Request, res: Response) => {
         const dto = CreatePostDTO.of(req.body);
         const [post, postImages] = await postService.createPost(req.user.id, dto);
 
-        res.json(PostResponseDTO.from(post));
+        res.json(PostResponseDTO.from(post, postImages));
     } catch (e){
         res.status(400).json({message: e.message});
     }

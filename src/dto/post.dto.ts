@@ -50,19 +50,20 @@ export class PostResponseDTO extends PostDto {
     // imageCount?: number;
     // imageUrls?: string[];
 
-    static from(post: Posts) : PostResponseDTO{
+    static from(post: Posts, imageUrls: string[]) : PostResponseDTO{
         return {
             postId: post.id,
             userId: post.user_id,
             title: post.title,
             content: post.content,
             likeCount: post.post_likes_count,
-            commentCount: post.comments_count
+            commentCount: post.comments_count,
+            image_url: imageUrls
         }
     }
-    static fromList(posts: Posts[][]): PostResponseDTO[] {
+    static fromList(posts: Posts[][], imageUrls: string[][]): PostResponseDTO[] {
         return posts.map(
-            (post, i) => this.from(post[i])
+            (post, i) => this.from(post[i], imageUrls[i])
         );   // 이거 될까될까될까?될까?될까?
     }
 }
