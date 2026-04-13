@@ -1,20 +1,23 @@
 import { Transaction } from "sequelize";
 import Images from "../models/images.ts";
+import { TargetType } from "../models/images.ts";
 
 export const createImages = async (
-    imageUrls:string[], 
-    targetId:number, 
+    image_url:string[], 
+    targetId:number,  // postId
     userId:number, 
-    transaction:Transaction
+    t:Transaction
 ) => {
-    const ImagesData = imageUrls.map((url, i)=>({
+    if(image_url.length===0 || !image_url) return;
+    
+    const ImagesData = image_url.map((url, i)=>({
         // id:postId,
         user_id: userId,
         target_id: targetId,
         image_url: url,
         image_index: i,
     }));
-    return await Images.bulkCreate(ImagesData, {transaction});
+    return await Images.bulkCreate(ImagesData, {transaction: t});
 }
 
 export const getPostOneImages = async (postId:number, t:Transaction) =>{

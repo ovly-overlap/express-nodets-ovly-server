@@ -1,19 +1,22 @@
-import Posts from "../models/posts.ts";
-import {ImagesPostResponseDTO} from "./image.dto.ts";
+import Posts from "../models/posts.js";
+// import {ImagesPostResponseDTO} from "./image.dto.js";
 
-export class CreatePostDTO{
-    title!:string;
-    // user_id:string;
-    content!: string;
-    image_url!: string[];
-    // id, post_likes_count=0, comments_count=0
-    // created_at, updated_at=X, deleted_at=X
+class PostDto{
+    userId?: number;
+    postId: number;
 
+    title: string;
+    content: string;
+
+    image_url?: string[]; // 널 가능성 있음
+}
+
+export class CreatePostDTO extends PostDto{
     static of(body: any): CreatePostDTO {
         const dto = new CreatePostDTO();
         dto.title = body.title;
         dto.content = body.content;
-        dto.image_url = body.image_url;
+        dto.image_url = body.image_url??[];
         this.validate(dto);
         return dto;
     }
@@ -35,29 +38,31 @@ export class UpdatePostDto {
   userId: number;
   title: string;
   content: string;
+  image_url: string[];
 }
 
-export class PostResponseDTO {
-    id!: number;
-    title!: string;
-    content!: string;
+export class PostResponseDTO extends PostDto {
+    // id!: number;
+    // title!: string;
+    // content!: string;
     likeCount!: number;
     commentCount!: number;
-    imageCount?: number;
-    imageUrls?: ImagesPostResponseDTO;
+    // imageCount?: number;
+    // imageUrls?: string[];
 
-    static from(post: Posts, imageUrls: ImagesPostResponseDTO) : PostResponseDTO{
+    static from(post: Posts) : PostResponseDTO{
         return {
-            id: post.id,
+            postId: post.id,
+            userId: post.user_id,
             title: post.title,
             content: post.content,
             likeCount: post.post_likes_count,
-            commentCount: post.comments_count,
-            // imageCount: imageUrls.length,  // 이거 작동 안함
-            imageUrls: imageUrls[0]
+            commentCount: post.comments_count
         }
     }
-    static fromList(posts: Posts[], imageUrls: ImagesPostResponseDTO[]): PostResponseDTO[] {
-        return posts.map((post, i) => this.from(post, imageUrls[i]));   // 이거 될까될까될까?될까?될까?
+    static fromList(posts: Posts[][]): PostResponseDTO[] {
+        return posts.map(
+            (post, i) => this.from(post[i])
+        );   // 이거 될까될까될까?될까?될까?
     }
 }

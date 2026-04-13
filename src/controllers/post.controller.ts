@@ -1,6 +1,6 @@
+import {Request, Response} from "express";
 import { CreatePostDTO, PostResponseDTO } from "../dto/post.dto.js";
 import * as postService from "../services/post.service.js";
-import {Request, Response} from "express";
 
 // TODO : 데이터 유효성 확인 & 데이터 안정성 확인
 // TODO : refactor : 라우터에서 app.use() 미들웨어로 try-catch 전역처리
@@ -21,7 +21,8 @@ export const getLikedUsersAll = async (req: Request, res: Response) =>{
 export const createPost = async (req: Request, res: Response) => {
     try{
         const dto = CreatePostDTO.of(req.body);
-        const post = await postService.createPost(req.user.id, dto);
+        const [post, postImages] = await postService.createPost(req.user.id, dto);
+
         res.json(PostResponseDTO.from(post));
     } catch (e){
         res.status(400).json({message: e.message});
