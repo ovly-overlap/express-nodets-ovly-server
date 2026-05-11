@@ -1,6 +1,14 @@
 import express, { Request } from "express";
 import * as authController from "../controllers/auth.controller.js";
 // import {auth} from "../middleware/auth.middleware.js";
+import validate from "../middleware/validate.js";
+
+// const express = require('express');
+// const validate = require('../../middlewares/validate');
+// const authValidation = require('../../validations/auth.validation');
+// const authController = require('../../controllers/auth.controller');
+// const auth = require('../../middlewares/auth');
+
 
 
 const router = express.Router();
@@ -16,8 +24,14 @@ const router = express.Router();
 //       image : req.user.image
 //     });
 //   });
-router.post("/auth/register", authController.register);
-router.get("/auth/login", authController.login);
+router.post("/register", authController.register);
+router.get("/login", authController.login);
+router.post('/refresh-tokens', validate(authValidation.refreshTokens), authController.refreshTokens);
 // router.get("/auth/logout", authController.logout); // 토큰 확인, etc
+// router.post('/logout', validate(authValidation.logout), authController.logout);
+
+// router.post('/forgot-password', validate(authValidation.forgotPassword), authController.forgotPassword);
+// router.post('/reset-password', validate(authValidation.resetPassword), authController.resetPassword);
+
 
 export default router;
