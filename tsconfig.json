@@ -10,6 +10,10 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    "noEmit": true,
+    "baseUrl": ".", // 기준 경로 설정
+    "paths": {
+      "@/*": ["src/*"] // "@/"로 시작하면 "src/" 폴더를 봐라!
+    }
   }
 }
