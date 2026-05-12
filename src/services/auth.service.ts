@@ -1,53 +1,95 @@
 // services/auth.service.ts
 // import * as userRepository from '../repository/user.repository.ts';
-import * as authRepository from "../repository/auth.repository.js";
-import { SignupRequestDTO } from '../dto/signupReq.dto.js';
-import { LoginReqDTO } from "../dto/login.dto.ts";
-
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
-``
-// TODO : 로그아웃 
 
-// TODO : 한국어 이름/아이디에 관한 중복 검사 이후 가입
-export const register = async (data: SignupRequestDTO) => {
-  const existing = await authRepository.findByEmail(data.email);
-  if (existing) {
-    throw new Error('이미 존재하는 유저');
-  }
-  const hashedPassword = await bcrypt.hash(data.password, 10)
+import Users from "@/models/users.ts";
+import { AppError } from '@/utils/appError.ts';
 
-  return await authRepository.createUser({
-    password: hashedPassword,
-    ...data,
-  });
-}
+// TODO : 토큰 관리 관련 로직
+// TODO : 무차별 대입 가입 막는 로직 (ip)
+// TODO : 토큰 쿠키 CSRF 예방 로직쓰기
 
-// TODO : 테스트 후 LoginReq.dto 제작 후 적용
-// TODO : 토큰을 쿠키 적용
-export const login = async (data: LoginReqDTO) => {
-  // const {userEmail, password} = req.body;
-  const userEmail = data.email;
-  const password = data.password;
-  const user = await authRepository.findByEmail(userEmail);
-  if (!user) throw new Error('존재하지 않는 사용자');
+export class AuthService{
+  constructor(private authService: AuthService){}
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  // if (!isMatch) throw new Error('비밀번호 틀림');
-  if(isMatch){
-    const token = jwt.sign({  // 이메일, 이름, 로그인 타임
-      userEmail: userEmail,
-      loginTime: new Date().toISOString()
-    }, "secret", {expiresIn: '30m'});
-    console.log(userEmail, "로그인", Date.now());
-    return {token};
-  } 
-  else{
-    throw new Error("로그인오류 : 비밀번호 확인해주세요");
+  // private generateVerificationToken(): string {
+  //   return crypto.randomBytes(32).toString('hex');
+  // }
+
+  async signup(username:string, password:string){
+    const isUserExist = await Users.findOne({ where: {username}});
+    if (isUserExist) {
+      throw new AppError("존재하는 유저", 401);
+    }
+
+    return await Users.create({username, password})
   }
 
-}
+  async login(username:string, password:string){ // TODO : DTO 처리 << 어떻게 해야할지 모르겟네;
+    const isUserExist = await Users.findOne({ where: {username}});
+    if(!isUserExist) throw new AppError("존재하지 않는 유저", 400);
 
-// export const logout = async (data: any) => {
+    const payload = {userId: user.id, username: username};
+    const token = jwt.sign(payload, JWT_SECRET, { // TODO : 키 관련 추가 처리
+      expiresIn: '10m', algorithm: 'HS256'
+    });
+    const refreshToken = jwt.sign(payload, JWT_SECRET, {
+      expiresIn: '1d', algorithm: 'HS256'
+    })
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    // if (!isMatch) throw new Error('비밀번호 틀림');
+    if(isMatch){
+      const token = jwt.sign({  // 이메일, 이름, 로그인 타임
+        userEmail: userEmail,
+        loginTime: new Date().toISOString()
+      }, "secret", {expiresIn: '30m'});
+      console.log(userEmail, "로그인", Date.now());
+
+    } 
+    else{
+      throw new Error("로그인오류 : 비밀번호 확인해주세요");
+    }
     
-// }
+    return { 
+      accessToken: token, 
+      refreshToken: refreshToken, 
+      tokenExpires: new Date(Date.now() + 15 * 60 * 1000)
+    };
+  }
+
+    /**
+   * Logout
+   * @param {string} refreshToken
+   * @returns {Promise}
+   */
+  async logout(refreshToken: any){
+    // const refreshTokenDoc = await Token.findOne({ token: refreshToken, type: tokenTypes.REFRESH, blacklisted: false });
+    // if (!refreshTokenDoc) {
+    //   throw new ApiError(httpStatus.NOT_FOUND, 'Not found');
+    // }
+    // await refreshTokenDoc.remove();
+  };
+}
+
+
+
+// /**
+//  * Refresh auth tokens
+//  * @param {string} refreshToken
+//  * @returns {Promise<Object>}
+//  */
+// export const refreshAuth = async (refreshToken) => {
+//   try {
+//     const refreshTokenDoc = await tokenService.verifyToken(refreshToken, tokenTypes.REFRESH);
+//     const user = await userService.getUserById(refreshTokenDoc.user);
+//     if (!user) {
+//       throw new Error();
+//     }
+//     await refreshTokenDoc.remove();
+//     return tokenService.generateAuthTokens(user);
+//   } catch (error) {
+//     throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
+//   }
+// };

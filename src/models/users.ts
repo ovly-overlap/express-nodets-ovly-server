@@ -9,8 +9,8 @@ import Comments from "./comments.js";
 interface UserAttributes {
   id: number;
   password: string;
+  username: string;
   profile_image_url: string;
-  name: string;
   intro: string;
 }
 
@@ -39,7 +39,7 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
   @Unique
   @AllowNull(false)
   @Column(DataType.STRING(50))
-  name!: string;
+  username!: string;
 
   @Column
   profile_image_url!: string;

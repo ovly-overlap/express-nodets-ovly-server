@@ -1,13 +1,34 @@
+import sequelize from "@/models/index.ts";
 import * as userRepository from "../repository/user.repository.ts";
+import User from "@/models/users.ts";
 
-export const createUser = async (data: string) => {
-  const existing = await userRepository.findByEmail(data.email)
+export class UserService{
+  constructor(private userRepository: UserRepository){}
 
-  if (existing) {
-    throw new Error('이미 존재하는 유저')
+  async getAllUsers(page=1, limit=10){
+    const skip = (page-1)*limit;
+    return await userRepository.findAllUsers();
   }
 
-  return await userRepository.createUser(data)
+  async getUserById(id: string){
+    const user = await sequelize.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    return user;
+  }
 }
 
 /**
