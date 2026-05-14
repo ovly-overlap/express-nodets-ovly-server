@@ -35,6 +35,7 @@ export class AuthService implements IAuthService{
 
   async signUp(data: SignUpDTO): Promise<SignUpResponseDTO>{
     // TODO: 아이디 입력시 한국어영어일본어중국어스페인어 이외 언어 제한
+    // TODO: 사용자가 입력한 고유한 이름의 솔트 추가 해서 2번째 id 제작
     const {username, password} = data;
     const existUser = await Users.findOne({ where: {username}});
     if (existUser) {

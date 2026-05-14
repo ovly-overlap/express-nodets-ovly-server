@@ -1,13 +1,12 @@
-import sequelize from "@/models/index.ts";
-import * as userRepository from "../repository/user.repository.ts";
-import User from "@/models/users.ts";
+import sequelize from "@/models/index.js";
+import Users from "@/models/users.js";
 
 export class UserService{
   constructor(private userRepository: UserRepository){}
 
   async getAllUsers(page=1, limit=10){
     const skip = (page-1)*limit;
-    return await userRepository.findAllUsers();
+    return await Users.findAll();
   }
 
   async getUserById(id: string){
@@ -29,6 +28,7 @@ export class UserService{
 
     return user;
   }
+
 }
 
 /**
