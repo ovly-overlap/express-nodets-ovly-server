@@ -1,5 +1,5 @@
 import { Optional } from 'sequelize';
-import { Table, Model, AutoIncrement, PrimaryKey, Column, Unique, AllowNull, DataType, BelongsToMany, HasMany } from 'sequelize-typescript';
+import { Table, Model, AutoIncrement, PrimaryKey, Column, Unique, AllowNull, DataType, BelongsToMany, HasMany, NotEmpty } from 'sequelize-typescript';
 import UserFollows from "./user_follows.js";
 import Posts from "./posts.js";
 import UserPostLikes from './user_post_likes.js';
