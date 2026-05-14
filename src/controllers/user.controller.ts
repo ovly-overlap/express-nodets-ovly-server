@@ -1,5 +1,4 @@
 import express, {Response, Request} from "express";
-import { validationResult } from "express-validator";
 import * as userService from "../services/user.service.js";
 
 // const userService = 

@@ -12,11 +12,12 @@ export interface IAuthController {
 }
 
 
-export class AuthController extends BaseController implements IAuthController {
+class AuthController extends BaseController implements IAuthController {
   // constructor(private authService: AuthService){
   //   super();
   // }
   private authService: IAuthService;
+
   constructor(authService: IAuthService){
     super();
     this.authService = authService;
@@ -70,3 +71,6 @@ export class AuthController extends BaseController implements IAuthController {
     });
   }
 }
+
+const authService = new AuthService();
+export const authController = new AuthController(authService);
