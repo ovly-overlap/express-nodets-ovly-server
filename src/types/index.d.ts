@@ -28,7 +28,7 @@ export interface UserResponseDTO {
   updatedAt: Date;
 }
 
-export interface AuthPayload {
+export interface AuthPayload { // jwt
   userId: string;
 }
 

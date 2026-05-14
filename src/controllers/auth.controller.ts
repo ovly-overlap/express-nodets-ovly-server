@@ -59,10 +59,13 @@ export class AuthController extends BaseController implements IAuthController {
   
   logout = (req: Request, res: Response, next: NextFunction): void =>{
     this.handleRequest(req, res, next, async () =>{
-      if(!req.user?.userId){
+      if(!req.user?.userId){ // TODO: 추후 인증 미들웨어 변경 및 반영
         throw new AppError("unAuthorized", 401);
       }
-      await this.authService.logout(req.user.userId);
+      else{
+        await this.authService.logout(req.user.userId);
+      }
+      res.clearCookie('refreshToken');
       return {message: "로그인 성공"};
     });
   }
