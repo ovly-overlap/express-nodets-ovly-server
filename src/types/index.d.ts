@@ -20,4 +20,38 @@ declare global {
   }
 }
 
-export {}
+export interface UserResponseDTO {
+  id: string;
+  // email: string;
+  username: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AuthPayload {
+  userId: string;
+}
+
+// Auth types
+export interface SignUpDTO {
+  username: string;
+  password: string;
+}
+
+export interface SignInDTO {
+  username: string;
+  password: string;
+}
+
+// Returned by signUp — no tokens (user must sign in separately)
+export interface SignUpResponseDTO {
+  user: UserResponseDTO;
+}
+
+// Returned by signIn — always includes both tokens
+export interface AuthResponseDTO {
+  user: UserResponseDTO;
+  accessToken: string;
+  refreshToken: string;
+  tokenExpires: Date;
+}

@@ -1,5 +1,5 @@
 import sequelize from "../models/index.js";
-import { CreatePostDTO, UpdatePostDto } from "../dto/post.dto.js";
+import { CreatePostDTO, UpdatePostDto } from "../types/post.dto.ts";
 import Posts from "../models/posts.js";
 import UserPostLikes from "../models/user_post_likes.js";
 import Users from "../models/users.js";

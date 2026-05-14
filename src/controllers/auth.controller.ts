@@ -1,12 +1,18 @@
 // controllers/auth.controller.ts
-import { LoginReqDTO } from '../dto/login.dto.ts';
-import { SignupRequestDTO } from '../dto/signupReq.dto.ts';
-import * as authService from '../services/auth.service.js';
 import { NextFunction, Request, Response } from 'express'; // Ensure Response is imported from express
 import { BaseController } from './base.controller.ts';
 import { AppError } from '@/utils/appError.ts';
+import { AuthService } from '../services/auth.service.js';
 
-export class AuthController extends BaseController{
+export interface IAuthController {
+  signUp(req: Request, res: Response, next: NextFunction): Promise<void>;
+  signIn(req: Request, res: Response, next: NextFunction): Promise<void>;
+  refreshAccessToken(req: Request, res: Response, next: NextFunction): Promise<void>;
+  logout(req: Request, res: Response, next: NextFunction): void;
+}
+
+
+export class AuthController extends BaseController implements IAuthController {
   constructor(private authService: AuthService){
     super();
   }
@@ -14,14 +20,21 @@ export class AuthController extends BaseController{
   signup = (req: Request, res: Response, next: NextFunction): void =>{
     this.handleRequest(req, res, next, async () => {
       const { name, password } = req.body;
-      return await this.authService.signup(name, password);
+      return await this.authService.signUp({username:name, password});
     });
   }
 
-  login = (req: Request, res: Response, next: NextFunction): void =>{
+  signin = (req: Request, res: Response, next: NextFunction): void =>{ // login
     this.handleRequest(req, res, next, async () => {
       const {name, password} = req.body;
-      return await this.authService.login(name, password);
+      const result = await this.authService.signIn({username:name, password});
+      res.cookie('refreshToken', result.refreshToken, {
+        httpOnly: true,
+        secure: false, // prod -> true
+        sameSite: 'strict',
+        maxAge: 7* 24* 60* 60* 1000 // 7d
+      });
+      res.json({accessToken: result.accessToken});
     });
   }
 

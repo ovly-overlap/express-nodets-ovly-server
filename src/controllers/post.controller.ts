@@ -1,4 +1,4 @@
-import { CreatePostDTO, PostResponseDTO } from "../dto/post.dto.js";
+import { CreatePostDTO, PostResponseDTO } from "../types/post.dto.ts";
 import * as postService from "../services/post.service.js";
 import {Request, Response} from "express";
 

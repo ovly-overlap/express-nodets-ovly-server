@@ -12,10 +12,12 @@ interface UserAttributes {
   username: string;
   profile_image_url: string;
   intro: string;
+  refreshToken: string;
 }
 
 interface UserCreationAttributes extends Optional<UserAttributes, 'id'> {}
   // when create user, dont need ID type
+  // TODO : 
 
 @Table({
   tableName: "users",
@@ -34,7 +36,7 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
   id!: number;
 
   @Column
-  password!: string; // 처리 필요 : 서비스에서 처리 
+  password!: string;   
 
   @Unique
   @AllowNull(false)
@@ -48,6 +50,9 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
   intro!: string;  
 
   readonly created_at!:Date;
+
+  @Column
+  refreshToken!:string;
 
 
 
