@@ -12,10 +12,11 @@ import { AuthResponseDTO, SignInDTO, SignUpDTO, SignUpResponseDTO, UserResponseD
 // TODO : 토큰 쿠키 CSRF 예방 로직쓰기 (app.ts<<)
 // TODO : payload에 이름 이외의 정보를 types에 만들어주기
 
-interface IAuthService {
+export interface IAuthService {
   signUp(data: SignUpDTO): Promise<SignUpResponseDTO>;
   signIn(data: SignInDTO): Promise<AuthResponseDTO>;
   refreshToken(userId: string): Promise<{ accessToken: string }>;
+  logout(userId: string): Promise<void>;
 }
 
 export class AuthService implements IAuthService{
