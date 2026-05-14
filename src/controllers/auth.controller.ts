@@ -5,10 +5,10 @@ import { AppError } from '@/utils/appError.ts';
 import { AuthService, IAuthService } from '@/services/auth.service.js';
 
 export interface IAuthController {
-  signUp(req: Request, res: Response, next: NextFunction): void;
-  signIn(req: Request, res: Response, next: NextFunction): void;
-  refreshAccessToken(req: Request, res: Response, next: NextFunction): void;
-  logout(req: Request, res: Response, next: NextFunction): void;
+  signUp(req: Request, res: Response, next: NextFunction): Promise<void>;
+  signIn(req: Request, res: Response, next: NextFunction): Promise<void>;
+  refreshAccessToken(req: Request, res: Response, next: NextFunction): Promise<void>;
+  logout(req: Request, res: Response, next: NextFunction): Promise<void>;
 }
 
 
@@ -23,15 +23,15 @@ class AuthController extends BaseController implements IAuthController {
     this.authService = authService;
   }
 
-  signUp = (req: Request, res: Response, next: NextFunction): void =>{
-    this.handleRequest(req, res, next, async () => {
+  signUp = async (req: Request, res: Response, next: NextFunction): Promise<void> =>{
+    await this.handleRequest(req, res, next, async () => {
       const { name, password } = req.body;
       return await this.authService.signUp({username:name, password});
     });
   }
 
-  signIn = (req: Request, res: Response, next: NextFunction): void =>{ // login
-    this.handleRequest(req, res, next, async () => {
+  signIn = async (req: Request, res: Response, next: NextFunction): Promise<void> =>{ // login
+    await this.handleRequest(req, res, next, async () => {
       const {name, password} = req.body;
       const result = await this.authService.signIn({username:name, password});
       res.cookie('refreshToken', result.refreshToken, {
@@ -44,8 +44,8 @@ class AuthController extends BaseController implements IAuthController {
     });
   }
 
-  refreshAccessToken = (req: Request, res: Response, next: NextFunction): void => {
-    this.handleRequest(req, res, next, async () => {
+  refreshAccessToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    await this.handleRequest(req, res, next, async () => {
       // const { refreshToken } = req.body;
       const refreshToken = req.cookies.refreshToken as string | false | undefined;
       if(!refreshToken){
@@ -58,8 +58,8 @@ class AuthController extends BaseController implements IAuthController {
   };
 
   
-  logout = (req: Request, res: Response, next: NextFunction): void =>{
-    this.handleRequest(req, res, next, async () =>{
+  logout = async (req: Request, res: Response, next: NextFunction): Promise<void> =>{
+    await this.handleRequest(req, res, next, async () =>{
       if(!req.user?.userId){ // TODO: 추후 인증 미들웨어 변경 및 반영
         throw new AppError("unAuthorized", 401);
       }
