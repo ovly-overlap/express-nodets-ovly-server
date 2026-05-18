@@ -81,7 +81,7 @@ export class AuthService implements IAuthService{
       user: this.toUserResponseDTO(existUser),
       accessToken: token, 
       refreshToken: refreshToken, 
-      tokenExpires: new Date(Date.now() + 15 * 60 * 1000)
+      tokenExpires: new Date(Date.now() + 15 * 60 * 1000) // TODO : 쿠키에 반영 및 쓸모잇게 하기
     };
   }
 
@@ -103,7 +103,10 @@ export class AuthService implements IAuthService{
   async logout(userId: string): Promise<void>{
     const user = await Users.findByPk(userId);
     if(user){
-      await user.update({refreshToken: null}); // DB에서 토큰을 비워서 재발급 불가 로직
+      await user.update(
+        {refreshToken: null},
+        {where: {id: userId}}
+      ); // DB에서 토큰을 비워서 재발급 불가 로직
     }
   }
 }
