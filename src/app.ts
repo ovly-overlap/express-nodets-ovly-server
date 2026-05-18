@@ -1,6 +1,6 @@
 import express from "express";
-import sequelize from "@/models/index.js"; 
 import cookieParser from "cookie-parser";
+import sequelize from "@/models/index.js"; 
 
 const app = express();
 

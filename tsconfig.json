@@ -11,6 +11,8 @@
     "strict": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
