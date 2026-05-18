@@ -1,10 +1,10 @@
 import express from "express";
-import db from '../db/models/index.js';
+import sequelize from "@/models/index.js"; 
 import cookieParser from "cookie-parser";
 
 const app = express();
 
-db.sequelize
+sequelize
   .sync({ force: false })
   .then(() => {
     console.log('✅ DB Connected!');

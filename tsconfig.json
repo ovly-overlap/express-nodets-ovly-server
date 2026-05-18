@@ -3,17 +3,23 @@
     "target": "ES2020",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
+    "allowJs": true,
     "rootDir": "src",
+    "resolveJsonModule": true,
     "outDir": "dist",
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "strict": false,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
-    "allowImportingTsExtensions": true,
-    "noEmit": true,
-    "baseUrl": ".", // 기준 경로 설정
+    "emitDecoratorMetadata": false,
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"] // "@/"로 시작하면 "src/" 폴더를 봐라!
+      "@/*": ["src/*"]
     }
-  }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "migrations",
+    "seeders"
+  ]
 }
