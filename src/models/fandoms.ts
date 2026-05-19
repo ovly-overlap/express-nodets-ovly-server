@@ -7,7 +7,7 @@ import UserFandoms from "./user_fandoms.js";
 class Fandoms extends Model{
     @AutoIncrement
     @PrimaryKey
-    @Column({type:DataType.STRING})
+    @Column({type:DataType.INTEGER})
     id!:number;
 
     @Column({type:DataType.STRING})

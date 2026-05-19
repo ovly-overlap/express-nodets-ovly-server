@@ -21,7 +21,6 @@ const sequelize = new Sequelize({
   password: config.password,
   host: config.host,
   dialect: config.dialect, // 'mysql', 'postgres' 등
-  logging: config.logging ?? false,
   timezone: '+09:00', // TODO : prod - timezone 변경
   // timezone: new Date().toLocaleDateString('en-US', {timeZoneName: 'longOffset'}).split('GMT')[1]
 });
