@@ -1,8 +1,8 @@
 import 'reflect-metadata';
 import { Optional } from 'sequelize';
-import { Model, Table, Column, AutoIncrement, PrimaryKey, DataType, ForeignKey, Default, CreatedAt, DeletedAt, AllowNull, BelongsTo, BelongsToMany, HasMany } from "sequelize-typescript";
-import Users from './users.ts';
-import UserPostLikes from './user_post_likes.ts';
+import { Model, Table, Column, AutoIncrement, PrimaryKey, DataType, ForeignKey, Default, CreatedAt, DeletedAt, AllowNull, BelongsTo, BelongsToMany, HasMany, Max } from "sequelize-typescript";
+import Users from './users.js';
+import UserPostLikes from './user_post_likes.js';
 
 interface PostAttributes{
     id: number;
@@ -38,23 +38,23 @@ class Posts extends Model<PostAttributes, PostCreationAttributes>{
     user_id!: number;
 
     @AllowNull(false)
-    @Column(DataType.STRING(50))
+    @Column({type:DataType.STRING(50)})
     title!: string;
     
     @AllowNull(false)
-    @Column(DataType.TEXT)
+    @Column({type:DataType.TEXT})
     content!: string;
     
     @Default(0)
-    @Column(DataType.NUMBER)
+    @Column({type:DataType.INTEGER})
     post_likes_count!: number;
     
     @Default(0)
-    @Column(DataType.NUMBER)
+    @Column({type:DataType.INTEGER})
     comments_count!: number;
 
     @Default(0)
-    @Column(DataType.SMALLINT)
+    @Column({type:DataType.SMALLINT})
     image_count!: number;
     
     readonly created_at!:Date;

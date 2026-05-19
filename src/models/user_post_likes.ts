@@ -1,6 +1,6 @@
-import {BelongsTo, Column, ForeignKey, Model, PrimaryKey, Table} from "sequelize-typescript";
-import Posts from "./posts.ts";
-import Users from "./users.ts";
+import {BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table} from "sequelize-typescript";
+import Posts from "./posts.js";
+import Users from "./users.js";
 
 @Table({
     tableName: "user_post_likes"
@@ -8,17 +8,17 @@ import Users from "./users.ts";
 class UserPostLikes extends Model{
     @PrimaryKey
     @ForeignKey(()=>Posts)
-    @Column
+    @Column({type:DataType.INTEGER})
     post_id!: number; 
     
     @PrimaryKey
     @ForeignKey(()=>Users)
-    @Column
+    @Column({type:DataType.INTEGER})
     user_id!: number;
     
+
     @BelongsTo(()=>Posts, "post_id")
     post!: Posts;
-    
     @BelongsTo(()=>Users, "user_id")
     user!: Users;
 }

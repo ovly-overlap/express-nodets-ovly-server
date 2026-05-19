@@ -15,24 +15,23 @@ export enum TargetType {
 class Images extends Model{
     @AutoIncrement
     @PrimaryKey
+    @Column({type:DataType.INTEGER})
     id!:number;
 
     @AllowNull(false)
-    @Column
+    @Column({type:DataType.INTEGER})
     target_id!: number; // 게시글, 스케줄 등에 대한 id
 
-    @Column
+    @Column({type:DataType.STRING})
     target_type!: string;
 
-    @Column({
-        type:DataType.TEXT
-    })
+    @Column({type:DataType.STRING})
     image_url!: string;
 
-    @Default(0)
     @Column({
         type:DataType.SMALLINT
     })
+    @Default(0)
     image_index!: number;
 
 

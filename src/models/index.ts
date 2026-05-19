@@ -8,6 +8,7 @@ import Posts from './posts.js';
 import UserPostLikes from './user_post_likes.js';
 import UserFandoms from './user_fandoms.js';
 import Comments from './comments.js';
+import Fandoms from './fandoms.js';
 
 const currentEnv = env.NODE_ENV || 'development';
 // @ts-ignore
@@ -33,7 +34,8 @@ sequelize.addModels([
   Posts, 
   UserPostLikes, 
   UserFandoms, 
-  Comments
+  Comments,
+  Fandoms
 ]);
 
 // 3. 다른 파일에서 사용할 수 있도록 내보내기
@@ -44,6 +46,7 @@ export {
   Posts,
   UserPostLikes,
   UserFandoms,
-  Comments
+  Comments,
+  Fandoms
 };
 export default sequelize;

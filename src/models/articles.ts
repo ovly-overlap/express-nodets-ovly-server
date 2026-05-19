@@ -38,7 +38,7 @@ class Articles extends Model<ArticleAttributes, ArticleCreationAttributes>{ //  
     article_source!: string;
 
     @AllowNull(false)
-    @Column({type:DataType.TEXT})
+    @Column({type:DataType.STRING})
     article_image_url!: string;
 
     @AllowNull(false)

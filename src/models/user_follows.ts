@@ -17,12 +17,12 @@ class UserFollows extends Model{
     
     @PrimaryKey
     @ForeignKey(()=>Users)
-    @Column(DataType.STRING)
+    @Column({type:DataType.INTEGER})
     follower_id!:number;
 
     @PrimaryKey
     @ForeignKey(()=>Users)
-    @Column(DataType.STRING)
+    @Column({type:DataType.INTEGER})
     following_id!:number;
 
     readonly created_at!:Date;

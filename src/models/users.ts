@@ -32,26 +32,26 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
 
   @AutoIncrement
   @PrimaryKey
-  @Column(DataType.STRING)
+  @Column({type:DataType.INTEGER})
   id!: number;
 
-  @Column
+  @Column({type:DataType.STRING})
   password!: string;   
 
   @Unique
   @AllowNull(false)
-  @Column(DataType.STRING(50))
+  @Column({type:DataType.STRING(50)})
   username!: string;
 
-  @Column
+  @Column({type:DataType.STRING})
   profile_image_url!: string;
 
-  @Column(DataType.STRING(70))
+  @Column({type:DataType.STRING(70)})
   intro!: string;  
 
   readonly created_at!:Date;
 
-  @Column(DataType.STRING)
+  @Column({type:DataType.STRING})
   refreshToken!:string;
 
 

@@ -12,23 +12,23 @@ import Users from "./users.js";
 class Comments extends Model{
     @PrimaryKey
     @AutoIncrement
-    @Column(DataType.NUMBER)
+    @Column({type:DataType.INTEGER})
     id!: number;
 
     @ForeignKey(()=>Posts)
-    @Column(DataType.NUMBER)
+    @Column({type:DataType.INTEGER})
     post_id!: number;
 
     @ForeignKey(()=>Users)
-    @Column(DataType.NUMBER)
+    @Column({type:DataType.INTEGER})
     user_id!:number;
 
     @Default(null)
-    @Column(DataType.NUMBER)
+    @Column({type:DataType.INTEGER})
     parent_id!: number;
 
     @AllowNull(false)
-    @Column(DataType.TEXT)
+    @Column({type:DataType.TEXT})
     content!: string;
 
     readonly created_at: Date;

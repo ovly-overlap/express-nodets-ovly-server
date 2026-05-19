@@ -1,5 +1,5 @@
-import {AutoIncrement, Model, PrimaryKey, Table, Column, HasMany} from "sequelize-typescript";
-import UserFandoms from "./user_fandoms.ts";
+import {AutoIncrement, Model, PrimaryKey, Table, Column, HasMany, DataType} from "sequelize-typescript";
+import UserFandoms from "./user_fandoms.js";
 
 @Table({
     tableName: "fandoms"
@@ -7,12 +7,13 @@ import UserFandoms from "./user_fandoms.ts";
 class Fandoms extends Model{
     @AutoIncrement
     @PrimaryKey
+    @Column({type:DataType.STRING})
     id!:number;
 
-    @Column
+    @Column({type:DataType.STRING})
     name!:string;
 
-    @Column
+    @Column({type:DataType.STRING})
     image_url!:string;
     
     @HasMany(()=>UserFandoms)
