@@ -1,6 +1,7 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import sequelize from "@/models/index.js"; 
+// import sequelize from "./models/index.js";
+import sequelize from "@/models/index.js";
 
 const app = express();
 
@@ -14,7 +15,7 @@ sequelize
   });
 
 
-app.use((req, res, next) => {
+app.use((req, res, next) => { // TODO : 라ㅜ터 리팩토링 (테스트용임)
   console.log('요청 들어옴');
   next();
 });

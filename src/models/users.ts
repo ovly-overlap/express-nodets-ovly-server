@@ -32,7 +32,7 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
 
   @AutoIncrement
   @PrimaryKey
-  @Column
+  @Column(DataType.STRING)
   id!: number;
 
   @Column
@@ -51,7 +51,7 @@ class Users extends Model<UserAttributes, UserCreationAttributes>{
 
   readonly created_at!:Date;
 
-  @Column
+  @Column(DataType.STRING)
   refreshToken!:string;
 
 

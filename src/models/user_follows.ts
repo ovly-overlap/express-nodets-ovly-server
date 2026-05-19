@@ -1,6 +1,6 @@
 
-import {Table, Model, PrimaryKey, ForeignKey, Index} from "sequelize-typescript";
-import Users from "./users.ts";
+import {Table, Model, PrimaryKey, ForeignKey, Index, Column, DataType} from "sequelize-typescript";
+import Users from "./users.js";
 
 @Table({
     tableName:"user_follows",
@@ -17,10 +17,12 @@ class UserFollows extends Model{
     
     @PrimaryKey
     @ForeignKey(()=>Users)
+    @Column(DataType.STRING)
     follower_id!:number;
 
     @PrimaryKey
     @ForeignKey(()=>Users)
+    @Column(DataType.STRING)
     following_id!:number;
 
     readonly created_at!:Date;

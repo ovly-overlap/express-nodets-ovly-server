@@ -1,9 +1,8 @@
 import { Sequelize } from 'sequelize-typescript'; // 'sequelize'가 아니라 'sequelize-typescript'에서 가져옵니다!
 import { env } from 'process';
-import configJson from '../../config/config.json' with { type: "json"}; 
 
-// 사용할 모델들을 전부 import 합니다.
-import Users from './users.js'; // (파일명 대소문자에 주의하세요. 작성하신 파일명이 'Users' 또는 'users'인지 확인)
+import configJson from '../../config/config.json' with { type: "json"}; 
+import Users from './users.js'; 
 import UserFollows from './user_follows.js';
 import Posts from './posts.js';
 import UserPostLikes from './user_post_likes.js';
@@ -15,7 +14,7 @@ const currentEnv = env.NODE_ENV || 'development';
 const config = configJson[currentEnv];
 
 // 1. sequelize-typescript의 Sequelize 인스턴스 생성
-const sequelize = new Sequelize({
+const sequelize = new Sequelize({ 
   database: config.database,
   username: config.username,
   password: config.password,
