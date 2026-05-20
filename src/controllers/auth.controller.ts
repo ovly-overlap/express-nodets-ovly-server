@@ -1,7 +1,7 @@
 // controllers/auth.controller.ts
 import { NextFunction, Request, Response } from 'express'; // Ensure Response is imported from express
-import { BaseController } from './base.controller.ts';
-import { AppError } from '@/utils/appError.ts';
+import { BaseController } from './base.controller.js';
+import { AppError } from '@/utils/appError.js';
 import { AuthService, IAuthService } from '@/services/auth.service.js';
 
 export interface IAuthController {
@@ -25,8 +25,8 @@ class AuthController extends BaseController implements IAuthController {
 
   signUp = async (req: Request, res: Response, next: NextFunction): Promise<void> =>{
     await this.handleRequest(req, res, next, async () => {
-      const { name, password } = req.body;
-      return await this.authService.signUp({username:name, password});
+      const { username, password } = req.body;
+      return await this.authService.signUp({username:username, password});
     });
   }
 

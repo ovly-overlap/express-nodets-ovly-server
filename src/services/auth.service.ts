@@ -3,8 +3,8 @@
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
 
-import Users from "@/models/users.ts";
-import { AppError } from '@/utils/appError.ts';
+import Users from "@/models/users.js";
+import { AppError } from '@/utils/appError.js';
 import { AuthResponseDTO, SignInDTO, SignUpDTO, SignUpResponseDTO, UserResponseDTO } from '@/types/index.js';
 
 // TODO : 토큰 관리 관련 로직

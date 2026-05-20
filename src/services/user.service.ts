@@ -41,8 +41,8 @@ export class UserService implements IUserService{
   }
 
   async createUser(data:{
-    username: string;
-    password: string;
+    username: string,
+    password: string
   }){
     return Users.create({...data});
   }

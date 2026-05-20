@@ -1,5 +1,5 @@
 import express from "express";
-import {authController} from "@/controllers/auth.controller.ts";
+import {authController} from "@/controllers/auth.controller.js";
 // import {auth} from "../middleware/auth.middleware.js";
 import validate from "@/middleware/validate.js";
 
