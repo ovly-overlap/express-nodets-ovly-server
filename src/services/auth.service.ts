@@ -54,6 +54,7 @@ export class AuthService implements IAuthService{
   async signIn(data: SignInDTO): Promise<AuthResponseDTO>{ // TODO : DTO 처리 << 어떻게 해야할지 모르겟네;
     const {username, password} = data;
     const existUser = await Users.findOne({ where: {username}});
+    
     if(!existUser) throw new AppError("존재하지 않는 유저", 400);
 
     const isPasswordValid = await bcrypt.compare(password, existUser.password);

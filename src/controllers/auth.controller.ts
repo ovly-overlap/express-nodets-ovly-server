@@ -33,7 +33,7 @@ class AuthController extends BaseController implements IAuthController {
   signIn = async (req: Request, res: Response, next: NextFunction): Promise<void> =>{ // login
     await this.handleRequest(req, res, next, async () => {
       const {name, password} = req.body;
-      const result = await this.authService.signIn({username:name, password});
+      const result = await this.authService.signIn({username:name, password}); // id값 필
       res.cookie('refreshToken', result.refreshToken, {
         httpOnly: true,
         secure: false, // prod -> true

@@ -1,12 +1,13 @@
 import { authenticate } from 'passport';
 import { UNAUTHORIZED, FORBIDDEN } from 'http-status';
-import ApiError from '../utils/ApiError';
-import { roleRights } from '../config/roles';
-import { jwt } from '../config/config';
+import * as jwt from "jwtwebtoken"; 
+
+import {AppError} from '../utils/appError.js';
+
 
 const verifyCallback = (req, resolve, reject, requiredRights) => async (err, user, info) => {
   if (err || info || !user) {
-    return reject(new ApiError(UNAUTHORIZED, 'Please authenticate'));
+    return reject(new AppError(UNAUTHORIZED, 'Please authenticate'));
   }
   req.user = user;
 
@@ -14,7 +15,7 @@ const verifyCallback = (req, resolve, reject, requiredRights) => async (err, use
     const userRights = roleRights.get(user.role);
     const hasRequiredRights = requiredRights.every((requiredRight) => userRights.includes(requiredRight));
     if (!hasRequiredRights && req.params.userId !== user.id) {
-      return reject(new ApiError(FORBIDDEN, 'Forbidden'));
+      return reject(new AppError(FORBIDDEN, 'Forbidden'));
     }
   }
   resolve();
