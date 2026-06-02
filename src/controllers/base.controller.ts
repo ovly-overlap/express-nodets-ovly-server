@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import { ApiResponse } from "@/utils/apiResponse.js";
+import { Controller } from "tsoa";
 
+// TODO : zod, validation을 활용한 컨트롤러
 
-// TODO : zod, validation을 활용한 컨트롤러 
-
-export abstract class BaseController {
+export abstract class BaseController extends Controller {
   protected async handleRequest(
     req: Request,
     res: Response,
@@ -15,12 +15,11 @@ export abstract class BaseController {
       const result = await action();
       ApiResponse.success(res, result);
     } catch (error) {
-      if(error.name === 'SequelizeValidationError'){
-        res.status(400).json({message: error.errors[0].message});
+      if (error.name === "SequelizeValidationError") {
+        res.status(400).json({ message: error.errors[0].message });
         ApiResponse.error(res, "sequlizeError");
       }
       next(error);
-
     }
   }
   // protected async handleError(
@@ -28,4 +27,4 @@ export abstract class BaseController {
   // ){
   //   res.status(400).json({message})
   // }
-} 
+}
