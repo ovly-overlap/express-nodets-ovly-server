@@ -26,3 +26,18 @@ export class AppError extends Error {
 export const isAppError = (error: any): error is AppError => {
   return error instanceof AppError;
 };
+
+export class BadRequestError extends AppError {
+  public readonly code: ErrorCode;
+  constructor(message: string, code = ErrorCode.BAD_REQUEST) {
+    super(message, 400, code);
+  }
+}
+
+// errors/NotFoundError.js (404)
+export class NotFoundError extends AppError {
+  public readonly code: ErrorCode;
+  constructor(message: string, code = ErrorCode.NOT_FOUND) {
+    super(message, 404, code);
+  }
+}

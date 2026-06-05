@@ -18,6 +18,7 @@ export abstract class BaseController extends Controller {
       if (error.name === "SequelizeValidationError") {
         res.status(400).json({ message: error.errors[0].message });
         ApiResponse.error(res, "sequlizeError");
+        return;
       }
       next(error);
     }

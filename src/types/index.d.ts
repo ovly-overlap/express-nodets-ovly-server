@@ -13,9 +13,10 @@ import * as express from "express"; // 추후 삭제
 declare global {
   namespace Express {
     interface Request {
-      user?: JwtPayload
-      email: string
-      password: string
+      user: {
+        id: number;
+        name: string;
+      };
     }
   }
 }
@@ -28,7 +29,8 @@ export interface UserResponseDTO {
   updatedAt: Date;
 }
 
-export interface AuthPayload { // jwt
+export interface AuthPayload {
+  // jwt
   userId: string;
 }
 

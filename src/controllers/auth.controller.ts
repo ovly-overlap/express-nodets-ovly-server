@@ -2,35 +2,21 @@
 import { NextFunction, Request, Response } from "express"; // Ensure Response is imported from express
 import { BaseController } from "./base.controller.js";
 import { AppError } from "@/utils/appError.js";
-import { AuthService, IAuthService } from "@/services/auth.service.js";
-import { Example, Post, Route, SuccessResponse } from "tsoa";
-import Users from "@/models/users.js";
+import { AuthService } from "@/services/auth.service.js";
+import { Example, Get, Post, Query, Route, SuccessResponse } from "tsoa";
 import { SignUpDto } from "./dto/auth.signup.dto.js";
 import { SignInDto } from "./dto/auth.signin.dto.js";
 import { SignInResDto } from "./dto/auth.signin-res.dto.js";
 
-export interface IAuthController {
-  signUp(req: Request, res: Response, next: NextFunction): Promise<void>;
-  signIn(req: Request, res: Response, next: NextFunction): Promise<void>;
-  refreshAccessToken(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void>;
-  logout(req: Request, res: Response, next: NextFunction): Promise<void>;
+interface CheckIdResponse {
+  isAvaliable: boolean;
+  message: string;
 }
 
 @Route("auth")
-class AuthController extends BaseController implements IAuthController {
-  // constructor(private authService: AuthService){
-  //   super();
-  // }
-  private authService: IAuthService;
-
-  constructor(authService: IAuthService) {
+class AuthController extends BaseController {
+  constructor(private readonly authService: AuthService) {
     super();
-    this.authService = authService;
-    this.signUp = this.signUp.bind(this);
   }
 
   @Post("signup")
@@ -45,6 +31,16 @@ class AuthController extends BaseController implements IAuthController {
       const { username, password } = req.body;
       return await this.authService.signUp({ username: username, password });
     });
+  }
+
+  @Get("signup/check-id")
+  public async checkId(@Query() username: string): Promise<CheckIdResponse> {
+    const isAvaliable = await this.authService.checkUsernameExist(username);
+    if (!isAvaliable) {
+      this.setStatus(409);
+      return { isAvaliable: false, message: "이미 사용 중인 아이디입니다." };
+    }
+    return { isAvaliable: true, message: "사용 가능한 아이디입니다." };
   }
 
   @Post("signin")
