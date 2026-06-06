@@ -117,10 +117,10 @@ class UserController extends Controller {
     this.setStatus(201);
   }
 
-  @Post("{userId}/follow")
+  @Post("{username}/follow")
   @SuccessResponse(204, "No Content")
   public async toggleFollowUser(
-    @Request() req: ExpressRequest & { user: { id: string } },
+    @Request() req: ExpressRequest,
     @Body() requestBody: FollowRequest
   ): Promise<{ message: string; isFollowing: boolean }> {
     const { userId, targetUserId } = requestBody;
@@ -129,6 +129,18 @@ class UserController extends Controller {
       targetUserId
     );
     this.setStatus(204);
+    return result;
+  }
+
+  @Get("follower")
+  public async getFollower(@Request() req: ExpressRequest): Promise<any> {
+    const result = await this.userService.getFollow(req.user.id, true);
+    return result;
+  }
+
+  @Get("following")
+  public async getFollowing(@Request() req: ExpressRequest): Promise<any> {
+    const result = await this.userService.getFollow(req.user.id);
     return result;
   }
 }

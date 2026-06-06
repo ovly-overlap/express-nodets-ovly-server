@@ -33,3 +33,12 @@ interface FandomType {
   name: string;
   imageUrl: string;
 }
+
+// --
+
+export class UserFollowRes {
+  id: number;
+  username: string;
+  profileImage: string;
+  isFollowing: boolean;
+}

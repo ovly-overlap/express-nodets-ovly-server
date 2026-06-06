@@ -1,7 +1,7 @@
 import { AppError, BadRequestError } from "../utils/appError.js";
 import Users from "../models/users.js";
 import { Op } from "sequelize";
-import sequelize, { UserFandoms } from "@/models/index.js";
+import sequelize, { UserFandoms, UserFollows } from "@/models/index.js";
 import { plainToInstance } from "class-transformer";
 import {
   UserListResponse,
@@ -148,5 +148,29 @@ export class UserService {
     });
     const finalImageUrl = `https://${bucketName}.s3.ap-northeast-2.amazonaws.com/${uniqueFileName}`;
     return { presignUrl, finalImageUrl };
+  }
+
+  async getFollow(
+    userId: number,
+    onlyFollowing: boolean = false,
+    page: number = 1,
+    limit: number = 10
+  ) {
+    const skip = (page - 1) * limit;
+    const where = onlyFollowing ? { targetId: userId } : { userId: userId };
+
+    const follows = await UserFollows.findAll({
+      where,
+      include: [
+        {
+          model: Users,
+          as: "followingUser",
+          attributes: ["id", "username", "profile_image_url"],
+        },
+      ],
+      offset: skip,
+      limit: limit,
+    });
+    return plainToInstance(UserProfileRes, follows);
   }
 }
