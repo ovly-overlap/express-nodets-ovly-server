@@ -1,12 +1,15 @@
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
-import sequelize from "@/models/index.js";
+import sequelize from "@/infrastructure/models/index.js";
 import dotenv from "dotenv";
 
-import authRouter from "./routes/auth.route.js";
-import userRouter from "./routes/user.route.js";
 // import { errorConverter, errorHandler } from "@/middleware/error.js";
-import rateLimiter from "@/middleware/rateLimiter.js";
+import rateLimiter from "@/infrastructure/middleware/rateLimiter.js";
+
+import cron from "node-cron";
+import { NewsSyncJob } from "./domain/news/news-sync.job.js";
+
+const newsSyncJob = new NewsSyncJob();
 
 const app = express();
 
@@ -47,9 +50,6 @@ app.use(express.json());
 // app.use(cors());
 // app.use(authMiddleware); // 전체 인증
 
-app.use("/auth", authRouter);
-app.use("/users", userRouter);
-
 // TODO : error Handler 나중에 발전
 // // app.use(errorConverter)
 // app.use(errorHandler);
@@ -59,13 +59,18 @@ app.use("/users", userRouter);
 //   res.send("Hello World")
 // })
 
+cron.schedule("*/30 * * * *", async () => {
+  await newsSyncJob.execute();
+});
+
 app
-  .listen(process.env.PORT, () => {
+  .listen(process.env.PORT, async () => {
     console.log(`
     ################################################
           🛡️  Server listening on port 🛡️
     ################################################
   `);
+    await newsSyncJob.execute();
   })
   .on("error", (err) => {
     console.error(err);
