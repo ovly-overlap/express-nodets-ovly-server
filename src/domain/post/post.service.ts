@@ -5,6 +5,7 @@ import UserPostLikes from "../../infrastructure/models/user_post_likes.js";
 import Users from "../../infrastructure/models/users.js";
 import * as imageService from "../uploads/image.service.js";
 import { col, fn, Op } from "sequelize";
+import PostImages from "@/infrastructure/models/post_images.js";
 
 // TODO 포스트 게시글 redis 캐싱 / 게시글 파라미터 계산
 
@@ -63,17 +64,21 @@ export class PostService {
   }
 
   public async createPost(userId: number, dto: CreatePostDTO) {
+    //TODO : 금지어 필터링
     return await sequelize.transaction(async (t) => {
       const user = await Users.findByPk(userId, { transaction: t });
       if (!user) throw new Error("USER_NOT_FOUND");
 
       // TODO: 알고리즘 파라미터 점수 계산 로직 공간
 
+      const imageCount = dto.image_url.length;
+
       const post = await Posts.create(
         {
           user_id: userId,
           title: dto.title,
           content: dto.content,
+          image_count: imageCount,
         },
         { transaction: t }
       );
@@ -87,23 +92,46 @@ export class PostService {
     return await sequelize.transaction(async (t) => {
       const images = await imageService.getPostOneImages(postId, t);
       const post = await Posts.findOne({
-        where: { id: postId }, // 🚨 주석 풀고 안전하게 where 조건 주입
+        where: { id: postId },
         attributes: ["id", "content", "image_count"],
-        order: [["params", "DESC"]], // ⚠️ 모델에 'params' 컬럼이 실제 존재하는지 확인 필요
+        order: [["params", "DESC"]],
         transaction: t,
       });
       return { post, images };
     });
   }
 
-  public async getPostAll(cursor?: number, limit: number = 10) {
-    const where = cursor ? { id: { [Op.lt]: cursor } } : {};
+  public async getPostAll(
+    cursor?: number,
+    limit: number = 10,
+    type: string = "suggest"
+  ) {
     const posts = await Posts.findAll({
-      where,
-      order: [["id", "DESC"]], // TODO: 알고리즘 점수 정렬
-      limit,
+      include: [
+        {
+          model: PostImages,
+          as: "images",
+          attributes: ["url"],
+        },
+        {
+          model: Users,
+          attributes: ["id", "username", "profile_image_url"],
+        },
+      ],
+      where: cursor ? { id: { [Op.lt]: cursor } } : {},
+      order: [["id", "DESC"]],
+      limit: limit + 1,
     });
-    return posts;
+
+    const hasNext = posts.length > limit;
+
+    const items = hasNext ? posts.slice(0, limit) : posts;
+
+    return {
+      items,
+      hasNext,
+      nextCursor: items.length > 0 ? items[items.length - 1].id : null,
+    };
   }
 
   public async updatePost(dto: UpdatePostDto) {
@@ -132,5 +160,13 @@ export class PostService {
 
     await post.destroy();
     return true;
+  }
+
+  public async alertPost(postId: number) {
+    throw new Error("alertPost");
+  }
+
+  public async blockPostandUser(postId: number) {
+    throw new Error("blockPostandUser");
   }
 }

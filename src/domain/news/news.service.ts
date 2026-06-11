@@ -1,4 +1,5 @@
 // import News from "@/infrastructure/models/news.js"
+import { Op } from "sequelize";
 import News from "../../infrastructure/models/news.js";
 
 export class NewsService {
@@ -8,5 +9,15 @@ export class NewsService {
       limit: limit,
     });
     return news;
+  }
+
+  async searchNews(keyword: string) {
+    const news = await News.findAll({
+      where: {
+        title: {
+          [Op.like]: `%${keyword}%`,
+        },
+      },
+    });
   }
 }
