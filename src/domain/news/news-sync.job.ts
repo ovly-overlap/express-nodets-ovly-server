@@ -1,23 +1,41 @@
 // application/jobs/news-sync.job.ts
 
-import { EntertainmentRssProvider } from "@/infrastructure/rss/entertainment-rss.provider";
+import axios from "axios";
 
-import { NewsRepository } from "@/domains/news/news.repository";
+import Parser from "rss-parser";
+import News from "@/infrastructure/models/news.js";
+import * as cheerio from "cheerio";
+
+const parser = new Parser();
+const RSS_URL = "https://www.newsis.com/RSS/entertain.xml";
 
 export class NewsSyncJob {
-  constructor(
-    private rssProvider = new EntertainmentRssProvider(),
-
-    private newsRepository = new NewsRepository()
-  ) {}
-
   async execute() {
-    console.log("뉴스 수집 시작");
+    const feed = await parser.parseURL(RSS_URL);
 
-    const articles = await this.rssProvider.fetchNews();
+    const newsList = [];
 
-    await this.newsRepository.bulkCreate(articles);
+    for (const item of feed.items) {
+      const imageUrl = await this.extractImage(item.link!);
 
-    console.log(`${articles.length}개 처리 완료`);
+      newsList.push({
+        title: item.title,
+        url: item.link,
+        image_url: imageUrl,
+        content: item.contentSnippet ?? "",
+      });
+    }
+
+    await News.bulkCreate(newsList, {
+      ignoreDuplicates: true,
+    });
+  }
+
+  private async extractImage(url: string) {
+    const { data } = await axios.get(url);
+
+    const $ = cheerio.load(data);
+
+    return $('meta[property="og:image"]').attr("content") ?? "";
   }
 }

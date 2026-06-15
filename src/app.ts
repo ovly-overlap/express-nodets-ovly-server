@@ -11,6 +11,7 @@ import { NewsSyncJob } from "./domain/news/news-sync.job.js";
 
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "../swagger.json" assert { type: "json" };
+import { startNewsCron } from "./domain/news/news.cron.js";
 
 const newsSyncJob = new NewsSyncJob();
 
@@ -64,9 +65,7 @@ app.use(express.json());
 //   res.send("Hello World")
 // })
 
-cron.schedule("*/30 * * * *", async () => {
-  await newsSyncJob.execute();
-});
+startNewsCron();
 
 app
   .listen(process.env.PORT, async () => {

@@ -18,7 +18,6 @@ interface NewsAttributes {
   url: string;
   image_url: string;
   content: string;
-  click_count: number;
 }
 
 // 생성할때 id랑 기본값 필드 선택사항으로 하기
@@ -44,16 +43,19 @@ class News extends Model<NewsAttributes, NewsAttributesCreate> {
   title!: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING })
+  @Column({ type: DataType.STRING, unique: true })
   url!: string;
 
   @AllowNull(false)
-  @Column({ type: DataType.STRING, unique: true })
+  @Column({ type: DataType.STRING })
   image_url!: string;
 
   @AllowNull(false)
   @Column({ type: DataType.TEXT })
   content!: string;
+
+  @Column(DataType.DATE)
+  publishedAt!: Date;
 }
 
 export default News;

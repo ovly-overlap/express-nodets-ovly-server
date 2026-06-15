@@ -1,5 +1,5 @@
 import { UsersService } from "@/domain/users/users.service.js";
-import UseCase from "@/infrastructure/types/UserCase.js";
+import UseCase from "@/infrastructure/types/UseCase.js";
 
 export default class GetProfileSettingUserCase
   implements UseCase<number, ProfileSettingPreview>
