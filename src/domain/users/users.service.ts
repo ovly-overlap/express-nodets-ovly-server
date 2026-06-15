@@ -1,20 +1,12 @@
-import {
-  AppError,
-  BadRequestError,
-} from "../../infrastructure/types/appError.js";
+import { AppError } from "../../infrastructure/types/appError.js";
 import Users from "../../infrastructure/models/users.js";
 import { Op } from "sequelize";
 import sequelize, {
+  Fandoms,
   UserFandoms,
   UserFollows,
 } from "@/infrastructure/models/index.js";
 import { plainToInstance } from "class-transformer";
-import {
-  UserListResponse,
-  UserListResponseDto,
-} from "@/domain/users/dto/user.req.dto.js";
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { UserProfileRes } from "@/domain/users/dto/user.res.dto.js";
 
 // TODO : 유저 검색
@@ -25,20 +17,42 @@ import { UserProfileRes } from "@/domain/users/dto/user.res.dto.js";
 export class UsersService {
   constructor() {}
 
-  public async getUserByName(name: string): Promise<UserProfileRes> {
-    const user = await Users.findOne({ where: { username: name } });
-    if (!user) {
-      throw new AppError("User not found", 404);
-    }
-    return plainToInstance(UserProfileRes, user);
-  }
-
-  public async getUserById(id: number): Promise<UserProfileRes> {
+  public async findById(id: number): Promise<Users> {
     const user = await Users.findByPk(id);
     if (!user) {
       throw new AppError("User not found", 404);
     }
-    return plainToInstance(UserProfileRes, user);
+    return user;
+  }
+
+  public async findIdByName(username: string): Promise<number> {
+    const user = await Users.findOne({
+      where: { username },
+      attributes: ["id"],
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    return user.id;
+  }
+
+  public async getUserByName(name: string): Promise<Users> {
+    // userProfile 조회용
+    const user = await Users.findOne({ where: { username: name } });
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+    return user;
+  }
+
+  public async getUserById(id: number): Promise<Users> {
+    const user = await Users.findByPk(id);
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+    return user;
   }
 
   public async updateProfileImage(id: number, imageUrl: string): Promise<void> {
@@ -73,110 +87,75 @@ export class UsersService {
     });
   }
 
-  public async toggleFollowUser(
-    userId: number,
-    targetUserId: number
-  ): Promise<{ message: string; isFollowing: boolean }> {
-    if (userId === targetUserId)
-      throw new BadRequestError("자기 자신 팔로우 ㄴㄴ");
-
-    return await sequelize.transaction(async (t) => {
-      const isFollowed = await UserFandoms.findOne({
-        where: {
-          userId: userId,
-          targetUserId: targetUserId,
-        },
-        transaction: t,
-      });
-
-      if (isFollowed) {
-        await isFollowed.destroy({ transaction: t });
-        return {
-          message: "팔로우 취소",
-          isFollowing: false,
-        };
-      }
-      await UserFandoms.create(
-        {
-          userId: userId,
-          targetUserId: targetUserId,
-        },
-        { transaction: t }
-      );
-
-      return {
-        message: "팔로우 완료",
-        isFollowing: true,
-      };
-    });
-  }
-
   public async searchUsersByName(
     keyword: string,
-    page: number = 1,
+    cursor?: number,
     limit: number = 10
-  ): Promise<UserListResponseDto> {
-    const skip = (page - 1) * limit;
-    const findUsers = await Users.findAll({
+  ): Promise<any> {
+    const users = await Users.findAll({
       where: {
         username: {
-          [Op.like]: `%${keyword}$`,
+          [Op.like]: `%${keyword}%`,
+        },
+
+        ...(cursor
+          ? {
+              id: {
+                [Op.lt]: cursor,
+              },
+            }
+          : {}),
+      },
+
+      order: [["id", "DESC"]],
+
+      limit: limit + 1,
+    });
+
+    const hasNext = users.length > limit;
+
+    if (hasNext) {
+      users.pop();
+    }
+
+    return {
+      items: users,
+
+      nextCursor: users.length > 0 ? users[users.length - 1].id : null,
+
+      hasNext,
+    };
+  }
+
+  async findFandomByUserId(userId: number) {
+    return await UserFandoms.findAll({
+      where: {
+        user_id: userId,
+      },
+      include: [Fandoms],
+    });
+  }
+
+  async findFandomByKeyword(userId: number, keyword: string) {
+    const joinedFandoms = await UserFandoms.findAll({
+      where: {
+        user_id: userId,
+      },
+      attributes: ["fandom_id"],
+    });
+
+    const joinedIds = joinedFandoms.map((item) => item.fandom_id);
+
+    return await Fandoms.findAll({
+      where: {
+        id: {
+          [Op.notIn]: joinedIds,
+        },
+        name: {
+          [Op.like]: `%${keyword}%`,
         },
       },
-      offset: skip,
-      limit: limit,
+      limit: 20,
     });
-
-    const plainUsers = findUsers.map((users) => users.get({ plain: true }));
-    const plainResponse = {
-      user: plainUsers,
-    };
-    return plainToInstance(UserListResponseDto, plainResponse, {
-      excludeExtraneousValues: true,
-    });
-  }
-
-  async generateUploadUrl(fileName: string, fileType: string) {
-    //TODO : aws s3 logic
-    //  rtn - presignedUrl, finalImageUrl
-    const s3client = new S3Client({ region: "ap-northeast-2" });
-    const uniqueFileName = `profiles/${Date.now()}_${fileName}`;
-    const bucketName = "";
-
-    const command = new PutObjectCommand({
-      Bucket: bucketName,
-      Key: uniqueFileName,
-      ContentType: fileType, // image/jpeg
-    });
-
-    const presignUrl = await getSignedUrl(s3client, command, {
-      expiresIn: 300,
-    });
-    const finalImageUrl = `https://${bucketName}.s3.ap-northeast-2.amazonaws.com/${uniqueFileName}`;
-    return { presignUrl, finalImageUrl };
-  }
-
-  async getFollow(
-    userId: number,
-    onlyFollowing: boolean = false,
-    page: number = 1,
-    limit: number = 10
-  ) {
-    const skip = (page - 1) * limit;
-    const where = onlyFollowing ? { targetId: userId } : { userId: userId };
-
-    const follows = await UserFollows.findAll({
-      where,
-      include: [
-        {
-          model: Users,
-          as: "followingUser",
-          attributes: ["id", "username", "profile_image_url"],
-        },
-      ],
-      offset: skip,
-      limit: limit,
-    });
-    return plainToInstance(UserProfileRes, follows);
   }
 }

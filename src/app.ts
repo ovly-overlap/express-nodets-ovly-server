@@ -9,9 +9,14 @@ import rateLimiter from "@/infrastructure/middleware/rateLimiter.js";
 import cron from "node-cron";
 import { NewsSyncJob } from "./domain/news/news-sync.job.js";
 
+import swaggerUi from "swagger-ui-express";
+import swaggerDocument from "../swagger.json" assert { type: "json" };
+
 const newsSyncJob = new NewsSyncJob();
 
 const app = express();
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 sequelize
   .sync({ force: false })

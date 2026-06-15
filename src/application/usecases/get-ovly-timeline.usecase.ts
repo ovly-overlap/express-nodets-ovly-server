@@ -1,8 +1,7 @@
 import { PostService } from "@/domain/post/post.service.js";
-import { plainToInstance } from "class-transformer";
-import UseCase from "@/infrastructure/types/UserCase.js";
+import UseCase from "@/infrastructure/types/UseCase.js";
 import { TimelineMapper } from "@/infrastructure/mapper.js";
-import CursorResponse from "@/infrastructure/types/CursorResponse.js";
+import CursorResponse from "@/infrastructure/types/cursorResponse.js";
 
 export default class GetOvlyTimelineUseCase
   implements UseCase<GetTimelineRequest, CursorResponse<TimelinePostResponse>>
@@ -25,9 +24,11 @@ export default class GetOvlyTimelineUseCase
 }
 
 export class TimelinePostResponse {
-  username: string;
-  userProfileUrl: string;
-  timeAge: string;
+  author: {
+    id: number;
+    username: string;
+    ProfileImageUrl: string;
+  };
   content: string;
   uploadedImageUrls: string[];
   likeCount: number;

@@ -1,46 +1,56 @@
-import 'reflect-metadata';
-import {Table, Model, Column, DataType, PrimaryKey, AutoIncrement, Default, AllowNull, ForeignKey, BelongsTo} from 'sequelize-typescript';
-import Posts from './posts.js';
+import "reflect-metadata";
+import {
+  Table,
+  Model,
+  Column,
+  DataType,
+  PrimaryKey,
+  AutoIncrement,
+  Default,
+  AllowNull,
+  ForeignKey,
+  BelongsTo,
+} from "sequelize-typescript";
+import Posts from "./posts.js";
 import Users from "./users.js";
 
 @Table({
-    tableName: 'comments',
-    timestamps: true,
-    createdAt: 'created_at',
-    deletedAt: 'deleted_at'
+  tableName: "comments",
+  timestamps: true,
+  createdAt: "createdAt",
+  deletedAt: "deletedAt",
 })
-class Comments extends Model{
-    @PrimaryKey
-    @AutoIncrement
-    @Column({type:DataType.INTEGER})
-    id!: number;
+class Comments extends Model {
+  @PrimaryKey
+  @AutoIncrement
+  @Column({ type: DataType.INTEGER })
+  id!: number;
 
-    @ForeignKey(()=>Posts)
-    @Column({type:DataType.INTEGER})
-    post_id!: number;
+  @ForeignKey(() => Posts)
+  @Column({ type: DataType.INTEGER })
+  post_id!: number;
 
-    @ForeignKey(()=>Users)
-    @Column({type:DataType.INTEGER})
-    user_id!:number;
+  @ForeignKey(() => Users)
+  @Column({ type: DataType.INTEGER })
+  user_id!: number;
 
-    @Default(null)
-    @Column({type:DataType.INTEGER})
-    parent_id!: number;
+  @Default(null)
+  @Column({ type: DataType.INTEGER })
+  parent_id!: number;
 
-    @AllowNull(false)
-    @Column({type:DataType.TEXT})
-    content!: string;
+  @AllowNull(false)
+  @Column({ type: DataType.TEXT })
+  content!: string;
 
-    readonly created_at: Date;
-    readonly deleted_at: Date;
+  @Default(0)
+  @Column({ type: DataType.INTEGER })
+  likes_count: number;
 
-    
-    @BelongsTo(()=> Posts)
-    post!: Posts;
+  @BelongsTo(() => Posts)
+  post!: Posts;
 
-    @BelongsTo(()=>Users)
-    user!: Users;
-
+  @BelongsTo(() => Users)
+  user!: Users;
 }
 
 export default Comments;

@@ -28,7 +28,6 @@ export interface UserListResponse {
   }>;
 }
 
-// 1. 배열 내부에 들어갈 개별 유저 오브젝트 클래스
 export class UserItemDto {
   @Expose()
   id!: number;
@@ -43,9 +42,8 @@ export class UserItemDto {
   profileUrl!: string;
 }
 
-// 2. 최종 리턴할 응답 클래스
 export class UserListResponseDto {
   @Expose()
-  @Type(() => UserItemDto) // 💡 중요: 배열 내부 요소의 타입을 지정해줍니다.
+  @Type(() => UserItemDto)
   users!: UserItemDto[];
 }

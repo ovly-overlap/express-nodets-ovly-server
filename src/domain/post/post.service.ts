@@ -1,10 +1,9 @@
-import sequelize from "../../infrastructure/models/index.js";
+import sequelize, { UserFollows } from "../../infrastructure/models/index.js";
 import { CreatePostDTO, UpdatePostDto } from "./dto/post.dto.js";
 import Posts from "../../infrastructure/models/posts.js";
 import UserPostLikes from "../../infrastructure/models/user_post_likes.js";
 import Users from "../../infrastructure/models/users.js";
-import * as imageService from "../uploads/image.service.js";
-import { col, fn, Op } from "sequelize";
+import { col, fn, Op, Sequelize, Transaction } from "sequelize";
 import PostImages from "@/infrastructure/models/post_images.js";
 
 // TODO 포스트 게시글 redis 캐싱 / 게시글 파라미터 계산
@@ -19,7 +18,7 @@ export class PostService {
 
       if (isUserLiked) {
         await isUserLiked.destroy({ transaction: t });
-        await Posts.decrement("post_likes_count", {
+        await Posts.decrement("likes_count", {
           where: { id: postId },
           transaction: t,
         });
@@ -30,7 +29,7 @@ export class PostService {
         { post_id: postId, user_id: userId },
         { transaction: t }
       );
-      await Posts.increment("post_likes_count", {
+      await Posts.increment("likes_count", {
         where: { id: postId },
         transaction: t,
       });
@@ -51,7 +50,10 @@ export class PostService {
             model: Posts,
             as: "likedPosts",
             attributes: [],
-            where: { id: postId },
+            where: {
+              id: postId,
+              ...(cursor ? { id: { [Op.lt]: cursor } } : {}),
+            },
             through: { attributes: [] },
           },
         ],
@@ -63,48 +65,54 @@ export class PostService {
     });
   }
 
-  public async createPost(userId: number, dto: CreatePostDTO) {
+  public async create(
+    userId: number,
+    title: string,
+    content: string,
+    imageUrl: string[],
+    t: Transaction
+  ) {
     //TODO : 금지어 필터링
-    return await sequelize.transaction(async (t) => {
-      const user = await Users.findByPk(userId, { transaction: t });
-      if (!user) throw new Error("USER_NOT_FOUND");
+    const user = await Users.findByPk(userId, { transaction: t });
+    if (!user) throw new Error("USER_NOT_FOUND");
 
-      // TODO: 알고리즘 파라미터 점수 계산 로직 공간
+    // TODO: 알고리즘 파라미터 점수 계산 로직 공간
 
-      const imageCount = dto.image_url.length;
+    const imageCount = imageUrl.length;
 
-      const post = await Posts.create(
-        {
-          user_id: userId,
-          title: dto.title,
-          content: dto.content,
-          image_count: imageCount,
-        },
-        { transaction: t }
-      );
+    const post = await Posts.create(
+      {
+        user_id: userId,
+        title: title,
+        content: content,
+        image_count: imageCount,
+      },
+      { transaction: t }
+    );
 
-      await imageService.createImages(dto.image_url, post.id, post.user_id, t);
-      return post;
-    });
+    // await imageService.createImages(dto.image_url, post.id, post.user_id, t);
+    return post;
   }
 
-  public async getPostOne(postId: number) {
-    return await sequelize.transaction(async (t) => {
-      const images = await imageService.getPostOneImages(postId, t);
-      const post = await Posts.findOne({
-        where: { id: postId },
-        attributes: ["id", "content", "image_count"],
-        order: [["params", "DESC"]],
-        transaction: t,
-      });
-      return { post, images };
+  public findDetail(postId: number): Promise<Posts | null> {
+    return Posts.findByPk(postId, {
+      include: [
+        {
+          model: Users,
+          attributes: ["id"],
+        },
+        {
+          model: PostImages,
+          as: "images",
+        },
+      ],
     });
   }
 
   public async getPostAll(
     cursor?: number,
     limit: number = 10,
-    type: string = "suggest"
+    type: string = "suggest" //TODO : 팔로워, 추천 관련 나눠서 뜨게 하기
   ) {
     const posts = await Posts.findAll({
       include: [
@@ -132,6 +140,10 @@ export class PostService {
       hasNext,
       nextCursor: items.length > 0 ? items[items.length - 1].id : null,
     };
+  }
+
+  public async getPostAllFollowings(cursor?: number, limit: number = 10) {
+    //TODO : 팔로잉한 사람에 대한 스크롤 따로 조회
   }
 
   public async updatePost(dto: UpdatePostDto) {
@@ -162,11 +174,90 @@ export class PostService {
     return true;
   }
 
-  public async alertPost(postId: number) {
+  async reportPost(postId: number) {
+    // 게시글 신고
     throw new Error("alertPost");
   }
 
-  public async blockPostandUser(postId: number) {
+  async blockPostandUser(postId: number) {
+    // 게시글 블락
     throw new Error("blockPostandUser");
+  }
+
+  async findLikedUsers(
+    viewerId: number,
+    postId: number,
+    cursor?: number,
+    limit: number = 20
+  ) {
+    const likes = await UserPostLikes.findAll({
+      include: [
+        {
+          model: Users,
+          as: "user",
+          attributes: ["id", "username", "profile_image_url"],
+        },
+      ],
+      where: {
+        postId,
+        ...(cursor ? { id: { [Op.lt]: cursor } } : {}),
+      },
+      order: [["createdAt", "DESC"]],
+      limit,
+    });
+
+    const likedUserIds = likes.map((like) => like.user.id);
+
+    const follows = await UserFollows.findAll({
+      attributes: ["following_id"],
+      where: {
+        userId: viewerId,
+        followingId: likedUserIds,
+      },
+    });
+
+    const followingSet = new Set(follows.map((follow) => follow.following_id));
+
+    const items = likes
+      .map((like) => ({
+        id: like.user.id,
+        username: like.user.username,
+        profile_image_url: like.user.profile_image_url,
+
+        isFollowing: followingSet.has(like.user.id),
+
+        likedAt: like.createdAt,
+      }))
+      .sort((a, b) => {
+        // 팔로우한 사람 우선
+        if (a.isFollowing !== b.isFollowing) {
+          return Number(b.isFollowing) - Number(a.isFollowing);
+        }
+
+        // 같은 그룹 내에서는 최신 좋아요 순
+        return new Date(b.likedAt).getTime() - new Date(a.likedAt).getTime();
+      });
+
+    return {
+      items,
+      nextCursor: likes.length === limit ? likes[likes.length - 1].id : null,
+      hasNext: likes.length === limit,
+    };
+  }
+
+  async findProfileRecentPost(userId: number, targetDate: string) {
+    const start = new Date(`${targetDate}T00:00:00.000+09:00`);
+    const end = new Date(`${targetDate}T23:59:59.999+09:00`);
+
+    const post = await Posts.findOne({
+      where: {
+        user_id: userId,
+        createAt: {
+          [Op.between]: [start, end],
+        },
+      },
+      order: [["createdAt", "DESC"]],
+    });
+    return post;
   }
 }

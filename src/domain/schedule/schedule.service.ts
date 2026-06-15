@@ -1,6 +1,6 @@
 import Schedule from "@/infrastructure/models/schedule.js";
 import { col, fn, literal, Op } from "sequelize";
-import { CreatedAt } from "sequelize-typescript";
+
 export class ScheduleService {
   constructor() {}
 
@@ -29,5 +29,33 @@ export class ScheduleService {
     return scheduleWeekly;
   }
 
-  public async findMonthlyById(userId: number) {}
+  async findProfilePreview(userId: number, targetDate: string) {
+    const start = new Date(`${targetDate}T00:00:00.000+09:00`);
+    const end = new Date(`${targetDate}T23:59:59.999+09:00`);
+
+    return Schedule.findAll({
+      where: {
+        user_id: userId,
+        createdAt: {
+          [Op.between]: [start, end],
+        },
+      },
+    });
+  }
+
+  async createSchedule(dto: any) {
+    const schedule = await Schedule.create(dto);
+    return schedule;
+  }
+
+  async getScheduleByDate(userId: number, targetDate: string) {
+    const schedule = await Schedule.findAll({
+      where: {
+        user_id: userId,
+        createdAt: targetDate,
+      },
+    });
+
+    return schedule;
+  }
 }

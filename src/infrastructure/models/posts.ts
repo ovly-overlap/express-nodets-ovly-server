@@ -9,13 +9,10 @@ import {
   DataType,
   ForeignKey,
   Default,
-  CreatedAt,
-  DeletedAt,
   AllowNull,
   BelongsTo,
   BelongsToMany,
   HasMany,
-  Max,
 } from "sequelize-typescript";
 import Users from "./users.js";
 import UserPostLikes from "./user_post_likes.js";
@@ -26,9 +23,10 @@ interface PostAttributes {
   user_id: number;
   title: string;
   content: string;
-  post_likes_count: number;
+  likes_count: number;
   comments_count: number;
   image_count: number;
+  createAt: Date;
 }
 
 interface PostCreationAttributes extends Optional<PostAttributes, "id"> {}
@@ -48,7 +46,7 @@ class Posts extends Model<PostAttributes, PostCreationAttributes> {
   id!: number;
 
   @AllowNull(false)
-  @ForeignKey(() => Users) // 유저 속성이 id가 들어오는게 맞는지 확인
+  @ForeignKey(() => Users)
   @Column({ type: DataType.INTEGER })
   user_id!: number;
 

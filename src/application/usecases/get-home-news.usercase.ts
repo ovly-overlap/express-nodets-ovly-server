@@ -1,7 +1,7 @@
-import UserCase from "@/infrastructure/types/UserCase.js";
+import UserCase from "@/infrastructure/types/UseCase.js";
 import { NewsPreview } from "./get-home.usercase.js";
 import { NewsService } from "@/domain/news/news.service.js";
-import { plainToClass, plainToInstance } from "class-transformer";
+import { plainToInstance } from "class-transformer";
 
 export default class GetHomeUserCase implements UserCase<null, NewsPreview> {
   constructor(private readonly newsService: NewsService) {}

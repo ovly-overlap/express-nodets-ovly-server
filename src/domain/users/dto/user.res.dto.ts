@@ -6,6 +6,7 @@
  */
 
 export class UserProfileRes {
+  profile_image_url: string;
   username: string;
   intro: string;
   followerNum: number;

@@ -1,5 +1,6 @@
+import GetPostDetailUseCase from "@/application/usecases/get-ovly-detailed-post.usecase.js";
+import GetOvlyTimelineUseCase from "@/application/usecases/get-ovly-timeline.usecase.js";
 import { PostService } from "@/domain/post/post.service.js";
-import { CreatePostDTO, PostResponseDTO } from "@/types/post.dto.js";
 import {
   Body,
   Controller,
@@ -14,12 +15,21 @@ import {
   Security,
   Tags,
 } from "tsoa";
+import { CreatePostDTO, PostResponseDTO } from "./dto/post.dto.js";
+import GetPostLikedUserCase from "@/application/usecases/get-ovly-post-liked.usecase.js";
+import CreatePostUseCase from "@/application/usecases/create-post-usecase.js";
 
 @Route("posts")
 @Tags("Post")
 @Security("jwt")
 export class PostController extends Controller {
-  constructor(private readonly postService: PostService) {
+  constructor(
+    private readonly postService: PostService,
+    private readonly getPostLikedUserCase: GetPostLikedUserCase,
+    private readonly getPostDetailUseCase: GetPostDetailUseCase,
+    private readonly getTimelineUseCase: GetOvlyTimelineUseCase,
+    private readonly createPostUseCase: CreatePostUseCase
+  ) {
     super();
   }
 
@@ -35,16 +45,17 @@ export class PostController extends Controller {
 
   @Get("{postId}/likes")
   public async getLikedUsersAll(
+    @Request() req: any,
     @Path() postId: number,
     @Query() cursor?: number,
     @Query() limit: number = 10
   ) {
-    const likedUsersInPost = await this.postService.getPostLikedUserAll(
+    const likedUsersInPost = await this.getPostLikedUserCase.execute({
+      viewerId: req.user.id,
       postId,
       cursor,
-      limit
-    );
-
+      limit,
+    });
     return likedUsersInPost;
   }
 
@@ -53,7 +64,12 @@ export class PostController extends Controller {
     try {
       const dto = CreatePostDTO.of(body);
 
-      const post = await this.postService.createPost(req.user.id, dto);
+      const post = await this.createPostUseCase.execute({
+        userId: req.user.id,
+        title: dto.title,
+        content: dto.content,
+        imageUrl: dto.image_url,
+      });
 
       return PostResponseDTO.from(post);
     } catch (e: any) {
@@ -66,20 +82,25 @@ export class PostController extends Controller {
   }
 
   @Get("{postId}")
-  public async getPostOne(@Path() postId: number, @Request() req: any) {
-    const post = await this.postService.getPostOne(req.user.id, postId);
-
-    return PostResponseDTO.from(post);
+  public async getPostDetail(@Path() postId: number, @Request() req: any) {
+    // const post = await this.postService.getPostOne(req.user.id, postId);
+    // return PostResponseDTO.from(post);
+    const post = await this.getPostDetailUseCase.execute(postId);
+    return post;
   }
 
   @Get()
   public async getPostAll(
     @Query() cursor?: number,
-    @Query() limit: number = 10
+    @Query() limit: number = 10,
+    @Query() type?: "suggest" | "following"
   ) {
-    const posts = await this.postService.getPostAll(cursor, limit);
-
-    return PostResponseDTO.fromList(posts);
+    const posts = await this.getTimelineUseCase.execute({
+      cursor,
+      limit,
+      type,
+    });
+    return posts;
   }
 
   @Put("{postId}")
@@ -99,7 +120,7 @@ export class PostController extends Controller {
       content: body.content,
     });
 
-    return PostResponseDTO.from(updatedPost);
+    return updatedPost;
   }
 
   @Delete("{postId}")

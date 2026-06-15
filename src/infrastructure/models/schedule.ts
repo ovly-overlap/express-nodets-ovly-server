@@ -26,6 +26,8 @@ interface ScheduleAttributes {
   content: string;
   memo?: string;
 
+  isDone: boolean;
+
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date;
@@ -59,6 +61,10 @@ class Schedule extends Model<ScheduleAttributes, ScheduleCreateAttributes> {
   @AllowNull(true)
   @Column({ type: DataType.TEXT })
   memo?: string;
+
+  @Default(false)
+  @Column({ type: DataType.BOOLEAN })
+  isDone!: boolean;
 
   @BelongsTo(() => Users, "user_id")
   user!: Users;

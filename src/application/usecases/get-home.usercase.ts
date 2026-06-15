@@ -1,6 +1,6 @@
 import { NewsService } from "@/domain/news/news.service.js";
 import { ScheduleService } from "@/domain/schedule/schedule.service.js";
-import UserCase from "@/infrastructure/types/UserCase.js";
+import UserCase from "@/infrastructure/types/UseCase.js";
 import { plainToInstance } from "class-transformer";
 
 export default class GetHomeUserCase implements UserCase<number, HomeResponse> {
@@ -68,12 +68,8 @@ export class MissionPreview {
 
 export class NewsPreview {
   id: number;
-
   title: string;
-
-  thumbnail: string;
-
-  source: string;
-
   url: string;
+  image_url: string;
+  content: string;
 }
