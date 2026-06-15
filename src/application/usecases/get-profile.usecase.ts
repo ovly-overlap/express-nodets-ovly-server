@@ -18,6 +18,7 @@ export default class GetProfileUserCase
     private readonly uploadService: UploadsService
   ) {}
   async execute(req: GetProfileRequest): Promise<UserProfilePreviewResponse> {
+
     const [
       user,
 

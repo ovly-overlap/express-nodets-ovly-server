@@ -12,6 +12,7 @@ import {
   SignUpResponseDTO,
   UserResponseDTO,
 } from "@/infrastructure/types/index.js";
+import { UniqueConstraintError } from "sequelize";
 
 // TODO : 토큰 관리 관련 로직
 // TODO : 무차별 대입 가입 막는 로직 (ip)
@@ -21,6 +22,7 @@ import {
 export class AuthService {
   // private generateVerificationToken(): string {
   //   return crypto.randomBytes(32).toString('hex');
+
   // }
   private toUserResponseDTO(user: Users): UserResponseDTO {
     return {
@@ -40,17 +42,22 @@ export class AuthService {
       throw new AppError("존재하는 유저", 401);
     }
 
-    // const hashedPassword = await bcrypt.hash(password, config.BCRYPT_SALE_ROUNDS);
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await Users.create({
-      username,
-      password: hashedPassword,
-    });
-
-    return { user: this.toUserResponseDTO(user) };
+    try {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = await Users.create({
+        username,
+        password: hashedPassword,
+      });
+      return { user: this.toUserResponseDTO(user) };
+    } catch (err) {
+      if (err instanceof UniqueConstraintError)
+        throw new AppError("존재하는 유저(2)", 401);
+    }
   }
 
   async signIn(data: SignInDTO): Promise<AuthResponseDTO> {
+    const JWT_SECRET = process.env.JWT_SECRET!;
+    const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
     const { username, password } = data;
     const existUser = await Users.findOne({ where: { username } });
 
@@ -65,8 +72,6 @@ export class AuthService {
         // ErrorCode.INVALID_CREDENTIALS
       );
     }
-    const JWT_SECRET = "1111"; // TODO : 시크릿키 환경파일에서 관리
-    const JWT_REFRESH_SECRET = JWT_SECRET;
     const payload = { userId: existUser.id, username: username };
     const token = jwt.sign(payload, JWT_SECRET, {
       // TODO : 키 관련 추가 처리
@@ -78,7 +83,8 @@ export class AuthService {
       algorithm: "HS256",
     });
     // TODO : 토큰 DB 저장 로직
-    await existUser.update({ refreshToken: refreshToken });
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await existUser.update({ refreshToken: hashedRefreshToken });
 
     return {
       user: this.toUserResponseDTO(existUser),
@@ -100,7 +106,10 @@ export class AuthService {
     receiveRefreshToken: string
   ): Promise<{ accessToken: string }> {
     try {
-      const decoded = jwt.verify(receiveRefreshToken, "JWT_REFRESH_SECRET") as {
+      const decoded = jwt.verify(
+        receiveRefreshToken,
+        process.env.JWT_REFRESH_SECRET!
+      ) as {
         userId: string;
       }; // TODO : JWT_REFRESH_TOKEN 2 인자 추가
       const user = await Users.findByPk(decoded.userId);
@@ -110,8 +119,9 @@ export class AuthService {
       const newAccessToken = jwt.sign(
         { userId: user.id, username: user.username },
         "JWT_SECRET",
-        { expiresIn: "10m" }
+        { expiresIn: "15m" }
       );
+
       return { accessToken: newAccessToken };
     } catch (error) {
       throw new AppError("인증 세션이 만료 되었습니다.", 401);
@@ -121,7 +131,9 @@ export class AuthService {
   async logout(userId: number): Promise<void> {
     const user = await Users.findByPk(userId);
     if (user) {
-      await user.update({ refreshToken: null }, { where: { id: userId } }); // DB에서 토큰을 비워서 재발급 불가 로직
+      await user.update({
+        refreshToken: null,
+      }); // DB에서 토큰을 비워서 재발급 불가 로직
     }
   }
 }

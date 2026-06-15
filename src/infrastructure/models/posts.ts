@@ -26,7 +26,7 @@ interface PostAttributes {
   likes_count: number;
   comments_count: number;
   image_count: number;
-  createAt: Date;
+  createdAt: string;
 }
 
 interface PostCreationAttributes extends Optional<PostAttributes, "id"> {}

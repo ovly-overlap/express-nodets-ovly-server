@@ -5,8 +5,9 @@ import UserPostLikes from "../../infrastructure/models/user_post_likes.js";
 import Users from "../../infrastructure/models/users.js";
 import { col, fn, Op, Sequelize, Transaction } from "sequelize";
 import PostImages from "@/infrastructure/models/post_images.js";
-
-// TODO 포스트 게시글 redis 캐싱 / 게시글 파라미터 계산
+import { AppError } from "@/infrastructure/types/appError.js";
+import PostReports from "@/infrastructure/models/post_reports.js";
+import UserHiddenPosts from "@/infrastructure/models/user_hidden_posts.js";
 
 export class PostService {
   public async toggleLikePost(postId: number, userId: number) {
@@ -65,6 +66,13 @@ export class PostService {
     });
   }
 
+  private readonly bannedWordRegex =
+    /(시발|병신|개새끼|fuck|알페스|나페스|시@발|십알|좆|씨발|ㅄ|ㅂㅅ|ㅅㅂ|tlqkf|지랄|ㅈㄹ|ㅈ같|야한|야하다|대가리|존못|뻐큐|팬픽|멍청|개새|개련|상련|쌍련|방시혁|과즙세연|한남|한녀|죽어|자살|자해|죽여|살해|한강물|투신|우동사리)/i;
+
+  private containsBannedWord(text: string): boolean {
+    return this.bannedWordRegex.test(text);
+  }
+
   public async create(
     userId: number,
     title: string,
@@ -99,7 +107,7 @@ export class PostService {
       include: [
         {
           model: Users,
-          attributes: ["id"],
+          attributes: ["id", "username", "profile_image_url"],
         },
         {
           model: PostImages,
@@ -110,10 +118,35 @@ export class PostService {
   }
 
   public async getPostAll(
+    viewerId: number,
     cursor?: number,
     limit: number = 10,
     type: string = "suggest" //TODO : 팔로워, 추천 관련 나눠서 뜨게 하기
   ) {
+    const hiddenPosts = await UserHiddenPosts.findAll({
+      where: {
+        user_id: viewerId,
+      },
+      attributes: ["post_id"],
+    });
+
+    const hiddenPostIds = hiddenPosts.map((post) => post.post_id);
+
+    const whereCondition: any = {};
+
+    if (cursor) {
+      whereCondition.id = {
+        [Op.lt]: cursor,
+      };
+    }
+
+    if (hiddenPostIds.length > 0) {
+      whereCondition.id = {
+        ...whereCondition.id,
+        [Op.notIn]: hiddenPostIds,
+      };
+    }
+
     const posts = await Posts.findAll({
       include: [
         {
@@ -126,11 +159,10 @@ export class PostService {
           attributes: ["id", "username", "profile_image_url"],
         },
       ],
-      where: cursor ? { id: { [Op.lt]: cursor } } : {},
+      where: whereCondition,
       order: [["id", "DESC"]],
       limit: limit + 1,
     });
-
     const hasNext = posts.length > limit;
 
     const items = hasNext ? posts.slice(0, limit) : posts;
@@ -157,10 +189,15 @@ export class PostService {
 
     if (isUpdated === 0) throw new Error("NOT_FOUND_OR_UNAUTHORIZED");
 
-    return await Posts.findByPk(postId);
+    const post = await Posts.findByPk(postId);
+
+    if (!post) throw new AppError("NOT_FOUND");
+
+    return post;
   }
 
   public async deletePost(postId: number, userId: number) {
+    // TODO : image cascade 삭제
     const post = await Posts.findByPk(postId);
     if (!post) {
       throw new Error("POST_NOT_FOUND");
@@ -174,14 +211,19 @@ export class PostService {
     return true;
   }
 
-  async reportPost(postId: number) {
-    // 게시글 신고
-    throw new Error("alertPost");
+  async reportPost(postId: number, userId: number, reason: string) {
+    return await PostReports.create({
+      post_id: postId,
+      user_id: userId,
+      reason,
+    });
   }
 
-  async blockPostandUser(postId: number) {
-    // 게시글 블락
-    throw new Error("blockPostandUser");
+  async hidePost(userId: number, postId: number) {
+    await UserHiddenPosts.create({
+      user_id: userId,
+      post_id: postId,
+    });
   }
 
   async findLikedUsers(
@@ -199,7 +241,7 @@ export class PostService {
         },
       ],
       where: {
-        postId,
+        post_id: postId,
         ...(cursor ? { id: { [Op.lt]: cursor } } : {}),
       },
       order: [["createdAt", "DESC"]],
@@ -250,9 +292,13 @@ export class PostService {
     const end = new Date(`${targetDate}T23:59:59.999+09:00`);
 
     const post = await Posts.findOne({
+      include: {
+        model: PostImages,
+        as: "images",
+      },
       where: {
         user_id: userId,
-        createAt: {
+        createdAt: {
           [Op.between]: [start, end],
         },
       },

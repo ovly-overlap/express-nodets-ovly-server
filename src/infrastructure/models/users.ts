@@ -46,7 +46,7 @@ class Users extends Model<UserAttributes, UserCreationAttributes> {
 
   @Unique
   @AllowNull(false)
-  @Column({ type: DataType.STRING(50) })
+  @Column({ type: DataType.STRING(50), unique: true })
   username!: string;
 
   @Column({ type: DataType.STRING })

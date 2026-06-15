@@ -18,11 +18,14 @@ export class UsersService {
   constructor() {}
 
   public async findById(id: number): Promise<Users> {
-    const user = await Users.findByPk(id);
-    if (!user) {
-      throw new AppError("User not found", 404);
-    }
-    return user;
+    return await Users.findByPk(id, {
+      include: [
+        {
+          model: UserFandoms,
+          include: [Fandoms],
+        },
+      ],
+    });
   }
 
   public async findIdByName(username: string): Promise<number> {
@@ -65,7 +68,7 @@ export class UsersService {
     newIntro: string
   ): Promise<void> {
     if (intro !== newIntro)
-      await Users.update({ intro: intro }, { where: { id } });
+      await Users.update({ intro: newIntro }, { where: { id } });
   }
 
   public async UpdateOrCreateFandom(
@@ -73,13 +76,13 @@ export class UsersService {
     newFandomIds: number[]
   ): Promise<void> {
     await sequelize.transaction(async (t) => {
-      UserFandoms.destroy({
+      await UserFandoms.destroy({
         where: { userId: userId },
         transaction: t,
       });
       const bulkData = newFandomIds.map((fandomId) => ({
-        userId: userId,
-        fandomId: fandomId,
+        user_id: userId,
+        fandom_id: fandomId,
       }));
       await UserFandoms.bulkCreate(bulkData, {
         transaction: t,

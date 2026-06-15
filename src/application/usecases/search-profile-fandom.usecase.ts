@@ -13,7 +13,11 @@ export default class SearchProfileFandomUseCase
       req.userId,
       req.keyword
     );
-    return plainToInstance(UserFandomsPreview, fandoms);
+    return fandoms.map((item) => ({
+      id: item.id,
+      image_url: item.image_url,
+      name: item.name,
+    }));
   }
 }
 

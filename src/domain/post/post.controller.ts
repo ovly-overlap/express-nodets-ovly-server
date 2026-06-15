@@ -43,6 +43,31 @@ export class PostController extends Controller {
     return isUserLiked;
   }
 
+  @Post("{postId}/hide")
+  public async hidePost(@Path() postId: number, @Request() req: any) {
+    await this.postService.hidePost(req.user.id, postId);
+
+    return {
+      success: true,
+    };
+  }
+
+  @Post("{postId}/report")
+  public async reportPost(
+    @Path() postId: number,
+    @Request() req: any,
+    @Body()
+    body: {
+      reason: string;
+    }
+  ) {
+    await this.postService.reportPost(postId, req.user.id, body.reason);
+
+    return {
+      success: true,
+    };
+  }
+
   @Get("{postId}/likes")
   public async getLikedUsersAll(
     @Request() req: any,

@@ -7,6 +7,8 @@ import {
   Request,
   Get,
   Query,
+  Put,
+  Path,
 } from "tsoa";
 import { ScheduleService } from "./schedule.service.js";
 import { Request as ExpressRequest } from "express";
@@ -34,7 +36,17 @@ export class ScheduleController extends Controller {
     return schedule;
   }
 
-  //TODO : 스케줄 수정 로직
+  @Put("{scheduleId}")
+  async updateSchedule(
+    @Request() req: ExpressRequest,
+    @Path() scheduleId: number
+  ) {
+    return await this.scheduleService.updateSchedule(scheduleId, req.user.id, {
+      title: req.body.title,
+      content: req.body.content,
+      memo: req.body.memo,
+    });
+  }
 
   @Get()
   async getScheduleByDate(
@@ -46,5 +58,18 @@ export class ScheduleController extends Controller {
       targetDate
     );
     return schedule;
-  } //TODO : 특정 날자에 대한 스케줄 요청
+  }
+
+  @Get("month")
+  async getMonthSchedules(
+    @Request() req: ExpressRequest,
+    @Query() year: number,
+    @Query() month: number
+  ) {
+    return await this.scheduleService.getMonthSchedules(
+      req.user.id,
+      year,
+      month
+    );
+  }
 }

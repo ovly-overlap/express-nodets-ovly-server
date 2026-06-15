@@ -26,34 +26,31 @@ import {
   UserListResponse,
 } from "./dto/user.req.dto.js";
 import { UserProfileRes } from "./dto/user.res.dto.js";
+import GetProfileUserCase from "@/application/usecases/get-profile.usecase.js";
 
 @Route("users")
 export default class UsersController extends Controller {
-  constructor(private readonly userService: UsersService) {
+  constructor(
+    private readonly userService: UsersService,
+    private readonly getProfileUseCase: GetProfileUserCase
+  ) {
     super();
   }
-  //TODO : 팬덤 자기소개 수정
-  // 팔로잉, 팔로워
-  // 최애 팬덤 설정
-  // 자기소개
-  // 프로필 이미지
-  //TODO : 특정 사용자 차단 로직
   //TODO : jwt 미들웨어로 방어
 
-  @Get("me") //TODO : 프로필 화면 전체 나오게 하기
-  public async getMe(@Request() req: ExpressRequest): Promise<UserProfileRes> {
-    const userId = req.user.id; //TODO : id 조작 방어
-    return await this.userService.getUserById(userId);
+  @Get("{viewerId}")
+  public async getUserById(
+    @Request() req: ExpressRequest,
+    @Path() viewerId: number
+  ) {
+    return await this.getProfileUseCase.execute({
+      viewerId: viewerId,
+      userId: req.user.id,
+      targetDate: new Date().toISOString().split("T")[0],
+    });
   }
 
-  @Get("{username}")
-  public async getUserByName(
-    @Path() username: string
-  ): Promise<UserProfileRes> {
-    return await this.userService.getUserByName(username);
-  }
-
-  @Get("search")
+  @Get("ovly/search")
   public async searchUsersByName(
     @Query() keyword: string,
     @Query() page?: number,
@@ -68,19 +65,7 @@ export default class UsersController extends Controller {
     return result;
   }
 
-  @Security("jwt")
-  @Post("me/image/presigned-url")
-  public async getPresignedUrl(
-    @Body() body: { fileName: string; fileType: string }
-  ): Promise<any> {
-    const result = await this.userService.generateUploadUrl(
-      body.fileName,
-      body.fileType
-    );
-    return { success: true, data: result };
-  }
-
-  @Patch("me/image")
+  @Patch("me/image") // TODO : ;profile image update 문
   public async updateProfileImage(
     // Presign
     @Request() req: ExpressRequest,
@@ -90,8 +75,6 @@ export default class UsersController extends Controller {
     const imageUrl = requestBody.imageUrl;
     await this.userService.updateProfileImage(userId, imageUrl);
     return { success: true, message: "프로필 변경 완료" };
-    //TODO : 공용 api 응답으로 대체
-    // ApiResponse.success()
   }
 
   @Patch("me/intro")
@@ -117,32 +100,5 @@ export default class UsersController extends Controller {
     const { newFandomIds } = requestBody;
     await this.userService.UpdateOrCreateFandom(userId, newFandomIds);
     this.setStatus(201);
-  }
-
-  @Post("{username}/follow")
-  @SuccessResponse(204, "No Content")
-  public async toggleFollowUser(
-    @Request() req: ExpressRequest,
-    @Body() requestBody: FollowRequest
-  ): Promise<{ message: string; isFollowing: boolean }> {
-    const { userId, targetUserId } = requestBody;
-    const result = await this.userService.toggleFollowUser(
-      userId,
-      targetUserId
-    );
-    this.setStatus(204);
-    return result;
-  }
-
-  @Get("follower")
-  public async getFollower(@Request() req: ExpressRequest): Promise<any> {
-    const result = await this.userService.getFollow(req.user.id, true);
-    return result;
-  }
-
-  @Get("following")
-  public async getFollowing(@Request() req: ExpressRequest): Promise<any> {
-    const result = await this.userService.getFollow(req.user.id);
-    return result;
   }
 }

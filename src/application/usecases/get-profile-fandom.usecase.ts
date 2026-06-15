@@ -1,4 +1,4 @@
-//TODO : 유저가 기존에 좋다고 한 팬덤
+//: 유저가 기존에 좋다고 한 팬덤
 
 import { UsersService } from "@/domain/users/users.service.js";
 import UseCase from "@/infrastructure/types/UseCase.js";

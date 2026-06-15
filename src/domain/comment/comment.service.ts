@@ -9,7 +9,6 @@ export default class CommentService {
     parentId: number | null = null,
     content: string
   ) {
-    //TODO : create comment
     const comment = await Comments.create({
       user_id: userId,
       post_id: postId,

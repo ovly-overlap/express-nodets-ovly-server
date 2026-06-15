@@ -9,13 +9,13 @@ import {
   Post,
   Query,
   Route,
+  Security,
   SuccessResponse,
 } from "tsoa";
-import { SignUpDto } from "./validator/dto/auth.signup.dto.js";
-import { SignInDto } from "./validator/dto/auth.signin.dto.js";
-import { SignInResDto } from "./validator/dto/auth.signin-res.dto.js";
-import { SignInDTO } from "@/infrastructure/types/index.js";
 import { SignUpResponseDTO } from "@/infrastructure/types/index.js";
+import { SignInDto } from "./dto/auth.signin.dto.js";
+import { SignInResDto } from "./dto/auth.signin-res.dto.js";
+import { SignUpDto } from "./dto/auth.signup.dto.js";
 
 interface CheckIdResponse {
   isAvaliable: boolean;
@@ -101,6 +101,7 @@ class AuthController extends Controller {
   }
 
   @Post("logout")
+  @Security("jwt")
   async logout(
     req: Request,
     res: Response,
@@ -108,7 +109,6 @@ class AuthController extends Controller {
   ): Promise<{ message: string }> {
     const userId = req.user.id;
     if (!userId) {
-      // TODO: 추후 인증 미들웨어 변경 및 반영
       throw new AppError("unAuthorized", 401);
     } else {
       await this.authService.logout(userId);
