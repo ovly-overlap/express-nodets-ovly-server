@@ -10,7 +10,6 @@ import {
   DataType,
   BelongsToMany,
   HasMany,
-  NotEmpty,
 } from "sequelize-typescript";
 import UserFollows from "./user_follows.js";
 import Posts from "./posts.js";
@@ -22,12 +21,16 @@ interface UserAttributes {
   id: number;
   password: string;
   username: string;
-  profile_image_url: string;
-  intro: string;
-  refreshToken: string;
+  profile_image_url: string | null;
+  intro: string | null;
+  refreshToken: string | null;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
+interface UserCreationAttributes
+  extends Optional<
+    UserAttributes,
+    "id" | "profile_image_url" | "intro" | "refreshToken"
+  > {}
 
 @Table({
   tableName: "users",
@@ -49,12 +52,15 @@ class Users extends Model<UserAttributes, UserCreationAttributes> {
   @Column({ type: DataType.STRING(50), unique: true })
   declare username: string;
 
+  @AllowNull(true)
   @Column({ type: DataType.STRING })
   declare profile_image_url: string | null;
 
+  @AllowNull(true)
   @Column({ type: DataType.STRING(70) })
   declare intro: string | null;
 
+  @AllowNull(true)
   @Column({ type: DataType.STRING })
   declare refreshToken: string | null;
 

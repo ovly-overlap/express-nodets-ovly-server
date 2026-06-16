@@ -5,14 +5,11 @@ import jwt from "jsonwebtoken";
 
 import Users from "@/infrastructure/models/users.js";
 import { AppError } from "@/infrastructure/types/appError.js";
-import {
-  AuthResponseDTO,
-  SignInDTO,
-  SignUpDTO,
-  SignUpResponseDTO,
-  UserResponseDTO,
-} from "@/infrastructure/types/index.js";
-import { UniqueConstraintError } from "sequelize";
+import { SignUpDto } from "./dto/signup.dto.js";
+import { SignInDto } from "./dto/signin.dto.js";
+import { ErrorCode } from "@/infrastructure/types/errorCodes.js";
+
+import { StringValue } from "ms";
 
 // TODO : 토큰 관리 관련 로직
 // TODO : 무차별 대입 가입 막는 로직 (ip)
@@ -24,40 +21,32 @@ export class AuthService {
   //   return crypto.randomBytes(32).toString('hex');
 
   // }
-  private toUserResponseDTO(user: Users): UserResponseDTO {
+
+  async signUp(data: SignUpDto): Promise<any> {
+    const { username, password } = data;
+
+    const existUser = await Users.findOne({ where: { username } });
+    if (existUser) {
+      throw new AppError("존재하는 유저", 409);
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await Users.create({
+      username,
+      password: hashedPassword,
+    });
+
     return {
-      id: user.id.toString(),
-      username: user.username,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      success: true,
     };
   }
 
-  async signUp(data: SignUpDTO): Promise<SignUpResponseDTO> {
-    // TODO: 아이디 입력시 한국어영어일본어중국어스페인어 이외 언어 제한
-    // TODO: 사용자가 입력한 고유한 이름의 솔트 추가 해서 2번째 id 제작
-    const { username, password } = data;
-    const existUser = await Users.findOne({ where: { username } });
-    if (existUser) {
-      throw new AppError("존재하는 유저", 401);
-    }
-
-    try {
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const user = await Users.create({
-        username,
-        password: hashedPassword,
-      });
-      return { user: this.toUserResponseDTO(user) };
-    } catch (err) {
-      if (err instanceof UniqueConstraintError)
-        throw new AppError("존재하는 유저(2)", 401);
-    }
-  }
-
-  async signIn(data: SignInDTO): Promise<AuthResponseDTO> {
+  async signIn(data: SignInDto): Promise<any> {
     const JWT_SECRET = process.env.JWT_SECRET!;
     const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
+    const ACCESS_TOKEN_EXPIRES = process.env.ACCESS_TOKEN_EXPIRES!;
+
     const { username, password } = data;
     const existUser = await Users.findOne({ where: { username } });
 
@@ -65,32 +54,24 @@ export class AuthService {
 
     const isPasswordValid = await bcrypt.compare(password, existUser.password);
     if (!isPasswordValid) {
-      throw new AppError(
-        "Invalid credentials",
-        401
-
-        // ErrorCode.INVALID_CREDENTIALS
-      );
+      throw new AppError(ErrorCode.INVALID_CREDENTIALS, 401);
     }
     const payload = { userId: existUser.id, username: username };
     const token = jwt.sign(payload, JWT_SECRET, {
-      // TODO : 키 관련 추가 처리
-      expiresIn: "10m",
+      expiresIn: ACCESS_TOKEN_EXPIRES as StringValue,
       algorithm: "HS256",
     });
     const refreshToken = jwt.sign(payload, JWT_REFRESH_SECRET, {
-      expiresIn: "1d",
+      expiresIn: process.env.REFRESH_TOKEN_EXPIRES as StringValue,
       algorithm: "HS256",
     });
-    // TODO : 토큰 DB 저장 로직
     const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
     await existUser.update({ refreshToken: hashedRefreshToken });
 
     return {
-      user: this.toUserResponseDTO(existUser),
       accessToken: token,
       refreshToken: refreshToken,
-      tokenExpires: new Date(Date.now() + 15 * 60 * 1000), // TODO : 쿠키에 반영 및 쓸모잇게 하기
+      tokenExpires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES),
     };
   }
 
@@ -111,20 +92,30 @@ export class AuthService {
         process.env.JWT_REFRESH_SECRET!
       ) as {
         userId: string;
-      }; // TODO : JWT_REFRESH_TOKEN 2 인자 추가
+      };
+
       const user = await Users.findByPk(decoded.userId);
-      if (!user || user.refreshToken !== receiveRefreshToken) {
+
+      const isValidRefreshToken = await bcrypt.compare(
+        receiveRefreshToken,
+        user?.refreshToken!
+      );
+
+      if (!user || !isValidRefreshToken) {
         throw new AppError("유효하지 않은 리프레시 토큰", 401);
       }
       const newAccessToken = jwt.sign(
         { userId: user.id, username: user.username },
-        "JWT_SECRET",
-        { expiresIn: "15m" }
+        process.env.JWT_SECRET!,
+        {
+          expiresIn: process.env.ACCESS_TOKEN_EXPIRES as StringValue,
+          algorithm: "HS256",
+        }
       );
 
       return { accessToken: newAccessToken };
     } catch (error) {
-      throw new AppError("인증 세션이 만료 되었습니다.", 401);
+      throw new AppError("다시 로그인 해주세요.", 401);
     }
   }
 
@@ -133,26 +124,7 @@ export class AuthService {
     if (user) {
       await user.update({
         refreshToken: null,
-      }); // DB에서 토큰을 비워서 재발급 불가 로직
+      });
     }
   }
 }
-
-// /**
-//  * Refresh auth tokens
-//  * @param {string} refreshToken
-//  * @returns {Promise<Object>}
-//  */
-// export const refreshAuth = async (refreshToken) => {
-//   try {
-//     const refreshTokenDoc = await tokenService.verifyToken(refreshToken, tokenTypes.REFRESH);
-//     const user = await userService.getUserById(refreshTokenDoc.user);
-//     if (!user) {
-//       throw new Error();
-//     }
-//     await refreshTokenDoc.remove();
-//     return tokenService.generateAuthTokens(user);
-//   } catch (error) {
-//     throw new ApiError(httpStatus.UNAUTHORIZED, 'Please authenticate');
-//   }
-// };

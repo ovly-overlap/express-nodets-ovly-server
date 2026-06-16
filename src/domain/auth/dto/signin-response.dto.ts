@@ -1,6 +1,6 @@
 import { IsString, IsNotEmpty } from "class-validator";
 
-export class SignInResDto {
+export class SignInResponseDto {
   @IsString()
   @IsNotEmpty()
   accessToken!: string;

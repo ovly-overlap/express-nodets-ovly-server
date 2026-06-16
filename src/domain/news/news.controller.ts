@@ -3,13 +3,11 @@ import {
   Response as ExpressResponse,
 } from "express";
 import { NewsService } from "./news.service.js";
-import { Get, Route, Request, Controller, Query } from "tsoa";
+import { Get, Route, Request, Controller, Query } from "@tsoa/runtime";
 
 @Route("news")
 export class NewsController extends Controller {
-  constructor(private readonly newsService: NewsService) {
-    super();
-  }
+  private readonly newsService = new NewsService();
 
   @Get()
   async getRecentNews(@Request() req: ExpressRequest) {

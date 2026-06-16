@@ -1,6 +1,6 @@
 import { col, fn, Op, Transaction } from "sequelize";
 import { randomUUID } from "crypto";
-import { supabase } from "@/infrastructure/storage/supabase.js";
+import { getSupabase } from "@/infrastructure/storage/supabase.js";
 import { UploadType } from "./enum/UploadType.js";
 import { CalendarPostPreview } from "@/application/usecases/get-profile.usecase.js";
 import Posts from "@/infrastructure/models/posts.js";
@@ -16,8 +16,8 @@ export default class UploadsService {
     contentType: string
   ) {
     this.validateContentType(contentType);
-
     const path = this.createPath(userId, type, fileName);
+    const supabase = getSupabase();
 
     const { data, error } = await supabase.storage
       .from(this.bucketName)

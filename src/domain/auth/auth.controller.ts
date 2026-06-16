@@ -1,5 +1,5 @@
 // controllers/auth.controller.ts
-import { NextFunction, Request, Response } from "express"; // Ensure Response is imported from express
+import { NextFunction, Request as ExpressRequest, Response } from "express"; // Ensure Response is imported from express
 import { AppError } from "@/infrastructure/types/appError.js";
 import { AuthService } from "@/domain/auth/auth.service.js";
 import {
@@ -11,22 +11,23 @@ import {
   Route,
   Security,
   SuccessResponse,
-} from "tsoa";
-import { SignUpResponseDTO } from "@/infrastructure/types/index.js";
-import { SignInDto } from "./dto/auth.signin.dto.js";
-import { SignInResDto } from "./dto/auth.signin-res.dto.js";
-import { SignUpDto } from "./dto/auth.signup.dto.js";
-
-interface CheckIdResponse {
-  isAvaliable: boolean;
-  message: string;
-}
+  Tags,
+  Request,
+  Body,
+} from "@tsoa/runtime";
+import { SignInDto } from "./dto/signin.dto.js";
+import { SignUpDto } from "./dto/signup.dto.js";
+import { SignInResponseDto } from "./dto/signin-response.dto.js";
+import { CheckIdResponse } from "./dto/signup.check-id-response.dto.js";
+import { RefreshTokenResponseDto } from "./dto/refresh-token-response.dto.js";
 
 @Route("auth")
-class AuthController extends Controller {
-  constructor(private readonly authService: AuthService) {
-    super();
-  }
+@Tags("auth")
+export class AuthController extends Controller {
+  // constructor(private readonly authService: AuthService) {
+  //   super();
+  // }
+  private readonly authService = new AuthService();
 
   @Post("signup")
   @SuccessResponse("201", "Created")
@@ -36,12 +37,11 @@ class AuthController extends Controller {
     passwordConfirm: "00000000",
   })
   async signUp(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<SignUpResponseDTO> {
-    const { username, password } = req.body;
-    return await this.authService.signUp({ username: username, password });
+    @Request() req: ExpressRequest,
+    @Body() body: SignUpDto
+  ): Promise<void> {
+    const { username, password, passwordConfirm } = body;
+    await this.authService.signUp({ username, password, passwordConfirm });
   }
 
   @Get("signup/check-id")
@@ -60,26 +60,21 @@ class AuthController extends Controller {
     password: "00000000",
   })
   async signIn(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<SignInResDto> {
-    // login
-    const { username, password } = req.body;
+    @Request() req: ExpressRequest,
+    @Body() body: SignInDto
+  ): Promise<SignInResponseDto> {
+    const { username, password } = body;
     const result = await this.authService.signIn({
-      username: username,
+      username,
       password,
-    }); // id값 필
-    res.cookie("refreshToken", result.refreshToken, {
+    });
+    req.res?.cookie("refreshToken", result.refreshToken, {
       httpOnly: true,
       secure: false, // prod -> true
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+      maxAge: 24 * 60 * 60 * 1000, // 1d
     });
-    const response: SignInResDto = {
-      accessToken: result.accessToken,
-    };
-    return response;
+    return { accessToken: result.accessToken };
   }
 
   @Post("refresh")
@@ -87,14 +82,11 @@ class AuthController extends Controller {
     refreshToken: "",
   })
   async refreshAccessToken(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<{ accessToken: string }> {
-    const refreshToken = req.cookies.refreshToken as string | false | undefined;
+    @Request() req: ExpressRequest
+  ): Promise<RefreshTokenResponseDto> {
+    const refreshToken = req.cookies.refreshToken as string | undefined;
     if (!refreshToken) {
-      next(new AppError("refrshToken requirrrrred", 401));
-      return;
+      throw new AppError("refrshToken requirrrrred", 401);
     }
     const accessToken = await this.authService.refreshToken(refreshToken);
     return accessToken;
@@ -102,21 +94,10 @@ class AuthController extends Controller {
 
   @Post("logout")
   @Security("jwt")
-  async logout(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<{ message: string }> {
+  async logout(@Request() req: ExpressRequest): Promise<{ message: string }> {
     const userId = req.user.id;
-    if (!userId) {
-      throw new AppError("unAuthorized", 401);
-    } else {
-      await this.authService.logout(userId);
-    }
-    res.clearCookie("refreshToken");
-    return { message: "로그인 성공" };
+    await this.authService.logout(userId);
+    req.res?.clearCookie("refreshToken");
+    return { message: "로그아웃 성공" };
   }
 }
-
-const authService = new AuthService();
-export const authController = new AuthController(authService);

@@ -2,7 +2,7 @@ import CursorResponse from "@/infrastructure/types/cursorResponse.js";
 import UseCase from "@/infrastructure/types/UseCase.js";
 import { FollowsService } from "@/domain/follows/follows.service.js";
 
-export class GetProfileFollowergUserCase
+export class GetProfileFollowerUseCase
   implements UseCase<GetFollowingRequest, CursorResponse<FollowerUserPreview>>
 {
   constructor(private readonly followService: FollowsService) {}
@@ -24,15 +24,15 @@ export class GetProfileFollowergUserCase
 }
 
 class FollowerUserPreview {
-  id: number;
-  username: string;
-  profileImageUrl: string;
-  isFollowing: boolean;
+  id!: number;
+  username!: string;
+  profileImageUrl!: string | null;
+  isFollowing!: boolean;
 }
 
-class GetFollowingRequest {
-  viewerId: number;
-  userId: number;
-  cursor: Date;
-  limit: number;
+export class GetFollowingRequest {
+  viewerId!: number;
+  userId!: number;
+  cursor!: Date | undefined;
+  limit!: number;
 }

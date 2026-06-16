@@ -16,7 +16,9 @@ export class NewsSyncJob {
     const newsList = [];
 
     for (const item of feed.items) {
-      const imageUrl = await this.extractImage(item.link!);
+      if (!isValidItem(item)) continue;
+
+      const imageUrl = await this.extractImage(item.link);
 
       newsList.push({
         title: item.title,
@@ -38,4 +40,14 @@ export class NewsSyncJob {
 
     return $('meta[property="og:image"]').attr("content") ?? "";
   }
+}
+
+type FeedItem = {
+  title: string;
+  link: string;
+  contentSnippet?: string;
+};
+
+function isValidItem(item: any): item is FeedItem {
+  return !!item.title && !!item.link;
 }

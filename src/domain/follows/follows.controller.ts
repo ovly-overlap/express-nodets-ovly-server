@@ -8,50 +8,71 @@ import {
   Query,
   Request,
   Security,
-} from "tsoa";
+} from "@tsoa/runtime";
 import { FollowsService } from "@/domain/follows/follows.service.js";
 import { Request as ExpressRequest } from "express";
+import { FollowersResponseDto } from "./dto/follower-users-response.dto.js";
+import { GetProfileFollowingUseCase } from "@/application/usecases/get-profile-following-users.usecase.js";
+import { GetProfileFollowerUseCase } from "@/application/usecases/get-profile-follower.usecase.js";
 
 @Route("follows")
 @Tags("Follows")
 export class FollowsController extends Controller {
-  private followsService = new FollowsService();
+  // constructor(
+  //   private readonly followsService: FollowsService,
+  //   private readonly getProfileFollowingUseCase: GetProfileFollowingUseCase,
+  //   private readonly getProfileFollowerUseCase: GetProfileFollowerUseCase
+  // ) {
+  //   super();
+  // }
+
+  private readonly followsService = new FollowsService();
+  private readonly getProfileFollowingUseCase = new GetProfileFollowingUseCase(
+    this.followsService
+  );
+  private readonly getProfileFollowerUseCase = new GetProfileFollowerUseCase(
+    this.followsService
+  );
+
+  // TODO : 여기 바꾸삼
 
   @Security("jwt")
   @Post("{userId}")
   public async toggleFollow(
     @Request() req: ExpressRequest,
     @Path() userId: number
-  ) {
+  ): Promise<{ message: string; isFollowing: boolean }> {
     return await this.followsService.toggleFollowUser(req.user.id, userId);
   }
 
-  @Get("followers/{userId}")
+  @Get("followers/{viewerId}")
   public async getFollowers(
     @Request() req: ExpressRequest,
-    @Path() userId: number,
-    @Query() cursor?: string,
+    @Path() viewerId: number,
+    @Query() cursor: string,
     @Query() limit: number = 10
-  ) {
-    return await this.followsService.getFollowers(
-      req.user.id,
-      userId,
-      cursor ? new Date(cursor) : undefined,
-      limit
-    );
+  ): Promise<FollowersResponseDto> {
+    const followingUser = await this.getProfileFollowerUseCase.execute({
+      viewerId,
+      userId: req.user.id,
+      cursor: cursor ? new Date(cursor) : undefined,
+      limit,
+    });
+    return followingUser;
   }
 
-  @Get("followings/{userId}")
+  @Get("followings/{viewerId}")
   public async getFollowings(
-    @Path() userId: number,
-    @Query() cursor?: string,
+    @Request() req: ExpressRequest,
+    @Query() cursor: string,
     @Query() limit: number = 10
   ) {
-    return await this.followsService.getFollowings(
-      userId,
-      cursor ? new Date(cursor) : undefined,
-      limit
-    );
+    const followingUsers = await this.getProfileFollowingUseCase.execute({
+      userId: req.user.id,
+      cursor: cursor ? new Date(cursor) : undefined,
+      limit,
+    });
+    return followingUsers;
   }
 
   @Get("counts/{userId}")

@@ -1,5 +1,5 @@
-export default interface CursorResponse<T> {
-  items: T[];
-  nextCursor: number | null;
-  hasNext: boolean;
+export default class CursorResponse<T> {
+  items!: T[];
+  nextCursor!: number | null;
+  hasNext!: boolean;
 }

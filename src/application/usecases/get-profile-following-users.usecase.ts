@@ -3,7 +3,7 @@ import UseCase from "@/infrastructure/types/UseCase.js";
 import { FollowsService } from "@/domain/follows/follows.service.js";
 import { FollowingMapper } from "@/infrastructure/mapper.js";
 
-export class GetProfileFollowingUserCase
+export class GetProfileFollowingUseCase
   implements UseCase<GetFollowingRequest, CursorResponse<FollowingUserPreview>>
 {
   constructor(private readonly followService: FollowsService) {}
@@ -24,13 +24,13 @@ export class GetProfileFollowingUserCase
 }
 
 class FollowingUserPreview {
-  id: number;
-  username: string;
-  profileImageUrl: string;
+  id!: number;
+  username!: string;
+  profileImageUrl!: string | null;
 }
 
 class GetFollowingRequest {
-  userId: number;
-  cursor: Date;
-  limit: number;
+  userId!: number;
+  cursor!: Date | undefined;
+  limit!: number;
 }

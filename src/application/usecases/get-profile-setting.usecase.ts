@@ -17,7 +17,7 @@ export default class GetProfileSettingUserCase
 }
 
 class ProfileSettingPreview {
-  username: string; // 이게 유저 아이디임
-  intro: string;
-  profileImageUrl: string;
+  username: string | undefined; // 이게 유저 아이디임
+  intro!: string | null;
+  profileImageUrl!: string | null;
 }

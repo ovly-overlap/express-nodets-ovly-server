@@ -1,4 +1,5 @@
-import { UploadType } from "../upload.service.js";
+import { UploadType } from "../enum/UploadType.js";
+
 
 export interface CreateUploadUrlRequest {
   type: UploadType;

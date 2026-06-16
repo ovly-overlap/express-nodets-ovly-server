@@ -20,56 +20,37 @@ export default class GetHomeUserCase implements UserCase<number, HomeResponse> {
     );
     // const missions = await Mission.findAll();
     return {
-      greeting: { intro: "안녕하세요!" },
       schedules: userWeeklySchedule,
-      missions: [
-        {
-          id: 1,
-          title: "a미션 테스트",
-          completed: false,
-        },
-      ],
       news: recentNews,
     };
   }
 }
 
 export class HomeResponse {
-  greeting: GreetingInfo;
+  schedules: SchedulePreview[] = [];
 
-  schedules: SchedulePreview[];
+  // missions: MissionPreview[] = [];
 
-  missions: MissionPreview[];
-
-  news: NewsPreview[];
-}
-
-export class GreetingInfo {
-  intro: string;
+  news: NewsPreview[] = [];
 }
 
 export class SchedulePreview {
-  id: number;
-
-  title: string;
-
-  date: string;
-
-  memo: string;
+  id!: number;
+  title!: string;
+  date!: string;
+  memo!: string;
 }
 
-export class MissionPreview {
-  id: number;
-
-  title: string;
-
-  completed: boolean;
-}
+// export class MissionPreview {
+//   id!: number;
+//   title!: string;
+//   completed: boolean = false;
+// }
 
 export class NewsPreview {
-  id: number;
-  title: string;
-  url: string;
-  image_url: string;
-  content: string;
+  id!: number;
+  title!: string;
+  url!: string;
+  image_url!: string;
+  content!: string;
 }

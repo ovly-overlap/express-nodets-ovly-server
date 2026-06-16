@@ -38,33 +38,33 @@ export class PostService {
     });
   }
 
-  public async getPostLikedUserAll(
-    postId: number,
-    cursor?: number,
-    limit: number = 10
-  ) {
-    return await sequelize.transaction(async (t) => {
-      const likedUsers = await Users.findAll({
-        attributes: ["id", "username"],
-        include: [
-          {
-            model: Posts,
-            as: "likedPosts",
-            attributes: [],
-            where: {
-              id: postId,
-              ...(cursor ? { id: { [Op.lt]: cursor } } : {}),
-            },
-            through: { attributes: [] },
-          },
-        ],
-        limit,
-        order: [["id", "DESC"]],
-        transaction: t,
-      });
-      return likedUsers;
-    });
-  }
+  // public async getPostLikedUserAll(
+  //   postId: number,
+  //   cursor: number | null,
+  //   limit: number = 10
+  // ) {
+  //   return await sequelize.transaction(async (t) => {
+  //     const likedUsers = await Users.findAll({
+  //       attributes: ["id", "username"],
+  //       include: [
+  //         {
+  //           model: Posts,
+  //           as: "likedPosts",
+  //           attributes: [],
+  //           where: {
+  //             id: postId,
+  //             ...(cursor ? { id: { [Op.lt]: cursor } } : {}),
+  //           },
+  //           through: { attributes: [] },
+  //         },
+  //       ],
+  //       limit,
+  //       order: [["id", "DESC"]],
+  //       transaction: t,
+  //     });
+  //     return likedUsers;
+  //   });
+  // }
 
   private readonly bannedWordRegex =
     /(시발|병신|개새끼|fuck|알페스|나페스|시@발|십알|좆|씨발|ㅄ|ㅂㅅ|ㅅㅂ|tlqkf|지랄|ㅈㄹ|ㅈ같|야한|야하다|대가리|존못|뻐큐|팬픽|멍청|개새|개련|상련|쌍련|방시혁|과즙세연|한남|한녀|죽어|자살|자해|죽여|살해|한강물|투신|우동사리|일베|노무현)/i;
@@ -177,8 +177,46 @@ export class PostService {
     };
   }
 
-  public async getPostAllFollowings(cursor?: number, limit: number = 10) {
+  public async getPostAllFollowings(
+    viewerId: number,
+    cursor: number | null,
+    limit: number = 10
+  ) {
+    const whereCondition: any = {};
+
+    if (cursor) {
+      whereCondition.id = {
+        [Op.lt]: cursor,
+      };
+    }
+
+    whereCondition.user_id = {
+      ...whereCondition.id,
+      [Op.in]: sequelize.literal(`
+        (
+          SELECT following_id
+          FROM user_follows
+          WHERE follower_id = ${viewerId}
+        )
+      `),
+    };
+
     //TODO : 팔로잉한 사람에 대한 스크롤 따로 조회
+    const posts = await Posts.findAll({
+      where: whereCondition,
+      order: [["createdAt", "DESC"]],
+      limit,
+    });
+
+    const hasNext = posts.length > limit;
+
+    const items = hasNext ? posts.slice(0, limit) : posts;
+
+    return {
+      items,
+      hasNext,
+      nextCursor: items.length > 0 ? items[items.length - 1].id : null,
+    };
   }
 
   public async updatePost(dto: UpdatePostDto) {
@@ -232,7 +270,7 @@ export class PostService {
   async findLikedUsers(
     viewerId: number,
     postId: number,
-    cursor?: number,
+    cursor: number | null = null,
     limit: number = 20
   ) {
     const likes = await UserPostLikes.findAll({

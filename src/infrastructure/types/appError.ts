@@ -28,7 +28,7 @@ export const isAppError = (error: any): error is AppError => {
 };
 
 export class BadRequestError extends AppError {
-  public readonly code: ErrorCode;
+  public readonly code: ErrorCode = ErrorCode.BAD_REQUEST;
   constructor(message: string, code = ErrorCode.BAD_REQUEST) {
     super(message, 400, code);
   }
@@ -36,7 +36,7 @@ export class BadRequestError extends AppError {
 
 // errors/NotFoundError.js (404)
 export class NotFoundError extends AppError {
-  public readonly code: ErrorCode;
+  public readonly code: ErrorCode = ErrorCode.NOT_FOUND;
   constructor(message: string, code = ErrorCode.NOT_FOUND) {
     super(message, 404, code);
   }

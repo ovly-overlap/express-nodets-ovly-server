@@ -51,7 +51,7 @@ export class UsersService {
   }
 
   public async UpdateOrCreateFandom(
-    userId: string,
+    userId: number,
     newFandomIds: number[]
   ): Promise<void> {
     await sequelize.transaction(async (t) => {

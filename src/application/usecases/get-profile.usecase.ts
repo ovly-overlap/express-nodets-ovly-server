@@ -29,7 +29,7 @@ export default class GetProfileUserCase
       recentPost,
       calendarPostsImages,
     ] = await Promise.all([
-      this.userService.findById(req.userId), // TODO : username 기준의 조회
+      this.userService.findById(req.userId),
 
       this.followsService.countFollowers(req.userId),
       this.followsService.countFollowings(req.userId),
@@ -51,7 +51,7 @@ export default class GetProfileUserCase
         profileImageUrl: user.profile_image_url,
         intro: user.intro,
 
-        userFandom: user.userFandoms.map((v) => v.fandom_image_url), //TODO : ㅇㄹㄱㄴ
+        userFandom: user.userFandoms.map((v) => v.fandom_image_url),
         followingCount: followingCount,
         followerCount: followerCount,
         isFollowing,
@@ -88,10 +88,10 @@ export class UserProfilePreviewResponse {
   calendarPosts!: CalendarPostPreview[];
 }
 
-interface GetProfileRequest {
-  viewerId: number;
-  userId: number;
-  targetDate: string;
+class GetProfileRequest {
+  viewerId!: number;
+  userId!: number;
+  targetDate!: string;
 }
 
 export class CalendarPostPreview {

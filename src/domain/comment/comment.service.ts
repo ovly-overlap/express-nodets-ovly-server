@@ -1,6 +1,8 @@
 import { Op } from "sequelize";
 import Comments from "../../infrastructure/models/comments.js";
 import Users from "@/infrastructure/models/users.js";
+import { AppError } from "@/infrastructure/types/appError.js";
+import { ErrorCode } from "@/infrastructure/types/errorCodes.js";
 
 export default class CommentService {
   public async createComment(
@@ -25,6 +27,8 @@ export default class CommentService {
         },
       ],
     });
+
+    if (!createdComment) throw new AppError(ErrorCode.BAD_REQUEST);
 
     return createdComment;
   }

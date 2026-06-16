@@ -1,22 +1,17 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import sequelize from "@/infrastructure/models/index.js";
-import dotenv from "dotenv";
 
-// import { errorConverter, errorHandler } from "@/middleware/error.js";
 import rateLimiter from "@/infrastructure/middleware/rateLimiter.js";
 
 import { NewsSyncJob } from "./domain/news/news-sync.job.js";
 
 import swaggerUi from "swagger-ui-express";
-import swaggerDocument from "../swagger.json" assert { type: "json" };
+import swaggerDocument from "./tsoa/swagger.json" with {type: "json"};
 import { startNewsCron } from "./domain/news/news.cron.js";
-
-const newsSyncJob = new NewsSyncJob();
-
-const app = express();
-
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+import { RegisterRoutes } from "./tsoa/routes.js";
 
 sequelize
   .sync({ force: false })
@@ -27,31 +22,23 @@ sequelize
     console.error(err);
   });
 
-dotenv.config();
+const app = express();
 
-// app.use((req, res, next) => { // TODO : 라ㅜ터 리팩토링 (테스트용임)
-//   console.log('app.ts 요청 들어옴');
-//   next();
-// });
-// error handler
+const newsSyncJob = new NewsSyncJob();
+RegisterRoutes(app);
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+
 
 interface ErrorType {
   message: string;
   status: number;
 }
 
-app.use((err: ErrorType, req: Request, res: Response, next: NextFunction) => {
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "production" ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render("error");
-});
-
-app.use(rateLimiter);
-app.use(cookieParser());
 app.use(express.json());
+app.use(cookieParser());
+app.use(rateLimiter);
 // app.use(cors());
 // app.use(authMiddleware); // 전체 인증
 
@@ -61,11 +48,21 @@ app.use(express.json());
 
 //
 // app.get("/", (_: Request, res: Response) => {
-//   res.send("Hello World")
-// })
+  //   res.send("Hello World")
+  // })
+  console.log(process.env.SUPABASE_URL);
 
-startNewsCron();
-
+  startNewsCron();
+  
+  app.use((err: ErrorType, req: Request, res: Response, next: NextFunction) => {
+    res.locals.message = err.message;
+    res.locals.error = req.app.get("env") === "production" ? err : {};
+  
+    // render the error page
+    res.status(err.status || 500);
+    res.render("error");
+  });
+  
 app
   .listen(process.env.PORT, async () => {
     console.log(`

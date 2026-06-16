@@ -87,17 +87,17 @@ export class ScheduleService {
     return schedule;
   }
 
-  async getMonthSchedules(userId: number, year: number, month: number) {
-    const start = new Date(year, month - 1, 1);
-    const end = new Date(year, month, 0, 23, 59, 59);
+  // async getMonthSchedules(userId: number, year: number, month: number) {
+  //   const start = new Date(year, month - 1, 1);
+  //   const end = new Date(year, month, 0, 23, 59, 59);
 
-    return Schedule.findAll({
-      where: {
-        user_id: userId,
-        createdAt: {
-          [Op.between]: [start, end],
-        },
-      },
-    });
-  }
+  //   return Schedule.findAll({
+  //     where: {
+  //       user_id: userId,
+  //       createdAt: {
+  //         [Op.between]: [start, end],
+  //       },
+  //     },
+  //   });
+  // }
 }

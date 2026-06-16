@@ -15,7 +15,7 @@ export default class SearchProfileFandomUseCase
 }
 
 export class UserFandomsPreview {
-  id: number;
-  image_url: string;
-  name: string;
+  id!: number;
+  image_url!: string;
+  name!: string;
 }

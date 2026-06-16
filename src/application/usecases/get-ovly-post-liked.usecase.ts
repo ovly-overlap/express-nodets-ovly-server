@@ -27,15 +27,15 @@ export default class GetPostLikedUserCase
 }
 
 export class GetPostLikedUsersRequest {
-  viewerId: number;
-  postId: number;
-  cursor?: number;
-  limit: number;
+  viewerId!: number;
+  postId!: number;
+  cursor!: number | null;
+  limit!: number;
 }
 
 export class LikedUserPreview {
-  userId: number;
-  username: string;
-  profileImageUrl: string;
-  isFollowing: boolean;
+  userId!: number;
+  username!: string;
+  profileImageUrl!: string | null;
+  isFollowing!: boolean;
 }

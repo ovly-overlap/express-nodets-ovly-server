@@ -14,29 +14,59 @@ import {
   Route,
   Security,
   Tags,
-} from "tsoa";
+} from "@tsoa/runtime";
 import { CreatePostDTO, PostResponseDTO } from "./dto/post.dto.js";
 import GetPostLikedUserCase from "@/application/usecases/get-ovly-post-liked.usecase.js";
 import CreatePostUseCase from "@/application/usecases/create-post-usecase.js";
 import { AppError } from "@/infrastructure/types/appError.js";
 import { Request as ExpressRequest } from "express";
+import { LikePostResponse } from "./dto/like-post-response.dto.js";
+import { LikedUsersCursorResponse } from "./dto/liked-users-cursor-response-dto.js";
+import CommentService from "../comment/comment.service.js";
+import UploadsService from "../uploads/upload.service.js";
 
 @Route("posts")
 @Tags("Post")
 @Security("jwt")
 export class PostController extends Controller {
-  constructor(
-    private readonly postService: PostService,
-    private readonly getPostLikedUserCase: GetPostLikedUserCase,
-    private readonly getPostDetailUseCase: GetPostDetailUseCase,
-    private readonly getTimelineUseCase: GetOvlyTimelineUseCase,
-    private readonly createPostUseCase: CreatePostUseCase
-  ) {
-    super();
-  }
+  // constructor(
+  //   private readonly postService: PostService,
+  //   private readonly getPostLikedUserCase: GetPostLikedUserCase,
+  //   private readonly getPostDetailUseCase: GetPostDetailUseCase,
+  //   private readonly getTimelineUseCase: GetOvlyTimelineUseCase,
+  //   private readonly createPostUseCase: CreatePostUseCase
+  // ) {
+  //   super();
+  // }
+  private readonly postService = new PostService();
+
+  private readonly commentService = new CommentService();
+
+  private readonly uploadService = new UploadsService();
+
+  private readonly getPostLikedUserCase = new GetPostLikedUserCase(
+    this.postService
+  );
+
+  private readonly getPostDetailUseCase = new GetPostDetailUseCase(
+    this.postService,
+    this.commentService
+  );
+
+  private readonly getTimelineUseCase = new GetOvlyTimelineUseCase(
+    this.postService
+  );
+
+  private readonly createPostUseCase = new CreatePostUseCase(
+    this.postService,
+    this.uploadService
+  );
 
   @Post("{postId}/likes")
-  public async toggleLikePost(@Path() postId: number, @Request() req: any) {
+  public async toggleLikePost(
+    @Path() postId: number,
+    @Request() req: any
+  ): Promise<LikePostResponse> {
     const isUserLiked = await this.postService.toggleLikePost(
       postId,
       req.user.id
@@ -72,18 +102,22 @@ export class PostController extends Controller {
 
   @Get("{postId}/likes")
   public async getLikedUsersAll(
-    @Request() req: any,
+    @Request() req: ExpressRequest,
     @Path() postId: number,
-    @Query() cursor?: number,
+    @Query() cursor: number | null = null,
     @Query() limit: number = 10
-  ) {
+  ): Promise<LikedUsersCursorResponse> {
     const likedUsersInPost = await this.getPostLikedUserCase.execute({
       viewerId: req.user.id,
       postId,
       cursor,
       limit,
     });
-    return likedUsersInPost;
+    return {
+      items: likedUsersInPost.items,
+      nextCursor: likedUsersInPost.nextCursor,
+      hasNext: likedUsersInPost.hasNext,
+    };
   }
 
   @Post()
@@ -108,6 +142,22 @@ export class PostController extends Controller {
     }
   }
 
+  @Get("ovly/{type}")
+  async getFollowingPostAll(
+    @Request() req: ExpressRequest,
+    @Path() type: "following" | "suggest" = "suggest",
+    @Query() cursor: number | null = null,
+    @Query() limit: number = 10
+  ) {
+    const posts = await this.getTimelineUseCase.execute({
+      viewerId: req.user.id,
+      cursor,
+      limit,
+      type,
+    });
+    return posts;
+  }
+
   @Get("{postId}")
   public async getPostDetail(@Path() postId: number, @Request() req: any) {
     const post = await this.getPostDetailUseCase.execute(postId);
@@ -115,21 +165,6 @@ export class PostController extends Controller {
       throw new AppError("Forbidden", 403);
     }
     return post;
-  }
-
-  @Get()
-  public async getPostAll(
-    @Request() req: ExpressRequest,
-    @Query() cursor: number | null = null,
-    @Query() limit: number = 10,
-    @Query() type?: "suggest" | "following"
-  ) {
-    const posts = await this.getTimelineUseCase.execute({
-      viewerId: req.user.id,
-      cursor,
-      limit,
-    });
-    return posts;
   }
 
   @Put("{postId}")
@@ -149,21 +184,16 @@ export class PostController extends Controller {
       content: body.content,
     });
 
-    return updatedPost;
+    return {
+      success: true,
+    };
   }
 
   @Delete("{postId}")
   public async deletePost(@Path() postId: number, @Request() req: any) {
-    try {
-      const isDeleted = await this.postService.deletePost(postId, req.user.id);
-
-      return isDeleted;
-    } catch (e: any) {
-      this.setStatus(400);
-
-      return {
-        message: e.message,
-      };
-    }
+    const isDeleted = await this.postService.deletePost(postId, req.user.id);
+    return {
+      success: isDeleted,
+    };
   }
 }

@@ -19,8 +19,8 @@ export interface FollowRequest {
   targetUserId: number;
 }
 
-export interface UserListResponse {
-  users: Array<{
+export class UserListResponse {
+  users!: Array<{
     id: number;
     username: string;
     profileIdx: string;

@@ -1,15 +1,9 @@
-import express, {
-  Response,
-  Request as ExpressRequest,
-  NextFunction,
-} from "express";
+import { Request as ExpressRequest } from "express";
 import { UsersService } from "./users.service.js";
-import { AppError } from "../../infrastructure/types/appError.js";
 import {
   Get,
   Patch,
   Route,
-  Security,
   Request,
   Body,
   Controller,
@@ -17,26 +11,29 @@ import {
   SuccessResponse,
   Path,
   Query,
-} from "tsoa";
+} from "@tsoa/runtime";
 import {
   UpdateIntroReq,
   UpdateImageReq,
   UpdateOrCreateFandomReq,
-  FollowRequest,
   UserListResponse,
 } from "./dto/user.req.dto.js";
-import { UserProfileRes } from "./dto/user.res.dto.js";
 import GetProfileUserCase from "@/application/usecases/get-profile.usecase.js";
+import { PostService } from "../post/post.service.js";
+import { ScheduleService } from "../schedule/schedule.service.js";
+import { FollowsService } from "../follows/follows.service.js";
+import UploadsService from "../uploads/upload.service.js";
 
 @Route("users")
-export default class UsersController extends Controller {
-  constructor(
-    private readonly userService: UsersService,
-    private readonly getProfileUseCase: GetProfileUserCase
-  ) {
-    super();
-  }
-  //TODO : jwt 미들웨어로 방어
+export class UsersController extends Controller {
+  private readonly userService = new UsersService();
+  private readonly getProfileUseCase = new GetProfileUserCase(
+    this.userService,
+    new PostService(),
+    new ScheduleService(),
+    new FollowsService(),
+    new UploadsService()
+  );
 
   @Get("{viewerId}")
   public async getUserById(
@@ -50,7 +47,7 @@ export default class UsersController extends Controller {
     });
   }
 
-  @Get("ovly/search")
+  @Get("search")
   public async searchUsersByName(
     @Query() keyword: string,
     @Query() page?: number,
@@ -79,7 +76,7 @@ export default class UsersController extends Controller {
 
   @Patch("me/intro")
   public async updateProfileIntro(
-    @Request() req: ExpressRequest & { user: { id: number } },
+    @Request() req: ExpressRequest,
     @Body() requestBody: UpdateIntroReq
   ): Promise<void> {
     const userId = req.user.id;
@@ -92,8 +89,8 @@ export default class UsersController extends Controller {
 
   @Post("me/fandom")
   @SuccessResponse(201, "Create")
-  public async followUser(
-    @Request() req: ExpressRequest & { user: { id: string } },
+  public async updateFandom(
+    @Request() req: ExpressRequest,
     @Body() requestBody: UpdateOrCreateFandomReq
   ): Promise<void> {
     const userId = req.user.id;

@@ -24,7 +24,7 @@ interface ScheduleAttributes {
   id: number;
   user_id: number;
   content: string;
-  memo?: string;
+  memo: string | null;
 
   isDone: boolean;
 
