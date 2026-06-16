@@ -31,7 +31,7 @@ export default class CommentService {
 
   public async findByPostId(
     postId: number,
-    cursor?: number,
+    cursor?: number | null,
     limit: number = 10
   ) {
     const comments = await Comments.findAll({

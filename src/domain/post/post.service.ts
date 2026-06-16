@@ -82,7 +82,10 @@ export class PostService {
   ) {
     //TODO : 금지어 필터링
     const user = await Users.findByPk(userId, { transaction: t });
-    if (!user) throw new Error("USER_NOT_FOUND");
+    if (!user) throw new AppError("USER_NOT_FOUND", 404);
+    if (this.containsBannedWord(content)) {
+      throw new AppError("바른 언어 사용을 해주세요", 422);
+    }
 
     // TODO: 알고리즘 파라미터 점수 계산 로직 공간
 
@@ -119,9 +122,9 @@ export class PostService {
 
   public async getPostAll(
     viewerId: number,
-    cursor?: number,
-    limit: number = 10,
-    type: string = "suggest" //TODO : 팔로워, 추천 관련 나눠서 뜨게 하기
+    cursor: number | null,
+    limit: number = 10
+    // type: string = "suggest" //TODO : 팔로워, 추천 관련 나눠서 뜨게 하기
   ) {
     const hiddenPosts = await UserHiddenPosts.findAll({
       where: {

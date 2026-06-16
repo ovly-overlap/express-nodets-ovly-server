@@ -1,6 +1,7 @@
 import CommentService from "@/domain/comment/comment.service.js";
 import { PostService } from "@/domain/post/post.service.js";
 import { CommentMapper, PostDetailMapper } from "@/infrastructure/mapper.js";
+import { AppError } from "@/infrastructure/types/appError.js";
 import CursorResponse from "@/infrastructure/types/cursorResponse.js";
 import UseCase from "@/infrastructure/types/UseCase.js";
 
@@ -14,12 +15,11 @@ export default class GetPostDetailUseCase
 
   async execute(postId: number): Promise<PostDetailResponse> {
     const post = await this.postService.findDetail(postId);
+    if (!post) {
+      throw new AppError("Not found", 404);
+    }
 
-    const comments = await this.commentService.findByPostId(
-      postId,
-      undefined,
-      20
-    );
+    const comments = await this.commentService.findByPostId(postId, null, 20);
 
     return {
       post: PostDetailMapper.toResponse(post),
@@ -36,29 +36,29 @@ export default class GetPostDetailUseCase
 }
 
 export class PostDetailResponse {
-  post: PostDetail;
+  post!: PostDetail;
 
-  comments: CursorResponse<CommentPreview>;
+  comments!: CursorResponse<CommentPreview>;
 }
 
 export class PostDetail {
-  id: number;
+  id!: number;
 
-  author: {
+  author!: {
     id: number;
     username: string;
-    ProfileImageUrl: string;
+    ProfileImageUrl: string | null;
   };
 
-  timeAgo: string;
+  timeAgo!: string;
 
-  content: string;
+  content!: string;
 
-  uploadedImageUrls: string[];
+  uploadedImageUrls!: string[];
 
-  likeCount: number;
+  likeCount!: number;
 
-  commentCount: number;
+  commentCount!: number;
 }
 
 export interface CommentPreview {
@@ -71,7 +71,7 @@ export interface CommentPreview {
   author: {
     id: number;
     username: string;
-    profileImageUrl: string;
+    profileImageUrl: string | null;
   };
 }
 

@@ -1,8 +1,6 @@
-import { TimelinePostResponse } from "@/application/usecases/get-ovly-timeline.usecase.js";
 import Posts from "./models/posts.js";
 import { getTimeAge } from "@/utils/getTimeAge.js";
 import Comments from "./models/comments.js";
-import UserPostLikes from "./models/user_post_likes.js";
 import { LikedUserPreview } from "@/application/usecases/get-ovly-post-liked.usecase.js";
 import Users from "./models/users.js";
 import UserFollows from "./models/user_follows.js";
@@ -125,11 +123,14 @@ export class UserProfileMapper {
         id: user.id,
         username: user.username,
         profileImageUrl: user.profile_image_url,
-        bio: user.bio,
+        intro: user.intro,
 
         followerCount,
         followingCount,
         isFollowing,
+        userFandom: user.UserFandoms?.map(
+          (uf: any) => uf.Fandoms?.fandoms_image_url
+        ),
       },
 
       recentPost,

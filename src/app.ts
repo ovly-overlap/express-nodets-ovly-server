@@ -6,7 +6,6 @@ import dotenv from "dotenv";
 // import { errorConverter, errorHandler } from "@/middleware/error.js";
 import rateLimiter from "@/infrastructure/middleware/rateLimiter.js";
 
-import cron from "node-cron";
 import { NewsSyncJob } from "./domain/news/news-sync.job.js";
 
 import swaggerUi from "swagger-ui-express";

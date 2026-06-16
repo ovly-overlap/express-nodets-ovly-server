@@ -11,7 +11,11 @@ export default class GetOvlyTimelineUseCase
   async execute(
     req: GetTimelineRequest
   ): Promise<CursorResponse<TimelinePostResponse>> {
-    const result = await this.postService.getPostAll(req.cursor, req.limit);
+    const result = await this.postService.getPostAll(
+      req.viewerId,
+      req.cursor,
+      req.limit
+    );
 
     return {
       items: result.items.map(TimelineMapper.toResponse),
@@ -24,19 +28,20 @@ export default class GetOvlyTimelineUseCase
 }
 
 export class TimelinePostResponse {
-  author: {
+  author!: {
     id: number;
     username: string;
-    ProfileImageUrl: string;
+    ProfileImageUrl: string | null;
   };
-  content: string;
-  uploadedImageUrls: string[];
-  likeCount: number;
-  commentCount: number;
+  content!: string;
+  uploadedImageUrls!: string[] | null;
+  likeCount!: number;
+  commentCount!: number;
+  timeAgo!: string;
 }
 
-interface GetTimelineRequest {
-  cursor?: number;
-  limit?: number;
-  type?: "suggest" | "following";
+class GetTimelineRequest {
+  viewerId!: number;
+  cursor!: number | null;
+  limit!: number;
 }

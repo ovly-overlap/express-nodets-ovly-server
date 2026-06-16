@@ -18,7 +18,6 @@ export default class GetProfileUserCase
     private readonly uploadService: UploadsService
   ) {}
   async execute(req: GetProfileRequest): Promise<UserProfilePreviewResponse> {
-
     const [
       user,
 
@@ -83,13 +82,10 @@ export default class GetProfileUserCase
 }
 
 export class UserProfilePreviewResponse {
-  profile: ProfileSection;
-
-  recentPost: ProfileRecentPostPreview | null;
-
-  schedules: SchedulePreview[];
-
-  calendarPosts: CalendarPostPreview[];
+  profile!: ProfileSection;
+  recentPost!: ProfileRecentPostPreview | null;
+  schedules!: SchedulePreview[];
+  calendarPosts!: CalendarPostPreview[];
 }
 
 interface GetProfileRequest {
@@ -99,31 +95,31 @@ interface GetProfileRequest {
 }
 
 export class CalendarPostPreview {
-  imageUrl: string;
-  date: string;
+  imageUrl!: string;
+  date!: string;
 }
 
 export class ProfileSection {
-  id: number;
-  username: string;
-  profileImageUrl: string;
-  intro: string;
-  userFandom: string[];
-  followerCount: number;
-  followingCount: number;
-  isFollowing: boolean;
+  id!: number;
+  username!: string;
+  profileImageUrl!: string | null;
+  intro!: string | null;
+  userFandom!: string[];
+  followerCount!: number;
+  followingCount!: number;
+  isFollowing!: boolean;
 }
 
 export class SchedulePreview {
-  id: number;
-  content: string;
-  date: string;
-  memo: string | null;
-  isDone: boolean;
+  id!: number;
+  content!: string;
+  date!: string;
+  memo!: string | null;
+  isDone!: boolean;
 }
 
 export class ProfileRecentPostPreview {
-  images: string[];
-  content: string;
-  date: string;
+  images!: string[];
+  content!: string;
+  date!: string;
 }

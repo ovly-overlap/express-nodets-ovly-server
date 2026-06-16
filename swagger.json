@@ -109,6 +109,6 @@
   "produces": ["application/json"],
   "swagger": "2.0",
   "securityDefinitions": {},
-  "host": "localhost:8888",
+  "host": "localhost:3000",
   "schemes": ["http", "https"]
 }

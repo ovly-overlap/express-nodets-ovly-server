@@ -4,10 +4,7 @@ import { Op } from "sequelize";
 import sequelize, {
   Fandoms,
   UserFandoms,
-  UserFollows,
 } from "@/infrastructure/models/index.js";
-import { plainToInstance } from "class-transformer";
-import { UserProfileRes } from "@/domain/users/dto/user.res.dto.js";
 
 // TODO : 유저 검색
 // TODO 이미지, 팬덤 수정
@@ -18,7 +15,7 @@ export class UsersService {
   constructor() {}
 
   public async findById(id: number): Promise<Users> {
-    return await Users.findByPk(id, {
+    const user = await Users.findByPk(id, {
       include: [
         {
           model: UserFandoms,
@@ -26,26 +23,8 @@ export class UsersService {
         },
       ],
     });
-  }
-
-  public async findIdByName(username: string): Promise<number> {
-    const user = await Users.findOne({
-      where: { username },
-      attributes: ["id"],
-    });
-
     if (!user) {
-      throw new AppError("User not found", 404);
-    }
-
-    return user.id;
-  }
-
-  public async getUserByName(name: string): Promise<Users> {
-    // userProfile 조회용
-    const user = await Users.findOne({ where: { username: name } });
-    if (!user) {
-      throw new AppError("User not found", 404);
+      throw new AppError("not found user", 404);
     }
     return user;
   }

@@ -18,6 +18,8 @@ import {
 import { CreatePostDTO, PostResponseDTO } from "./dto/post.dto.js";
 import GetPostLikedUserCase from "@/application/usecases/get-ovly-post-liked.usecase.js";
 import CreatePostUseCase from "@/application/usecases/create-post-usecase.js";
+import { AppError } from "@/infrastructure/types/appError.js";
+import { Request as ExpressRequest } from "express";
 
 @Route("posts")
 @Tags("Post")
@@ -108,22 +110,24 @@ export class PostController extends Controller {
 
   @Get("{postId}")
   public async getPostDetail(@Path() postId: number, @Request() req: any) {
-    // const post = await this.postService.getPostOne(req.user.id, postId);
-    // return PostResponseDTO.from(post);
     const post = await this.getPostDetailUseCase.execute(postId);
+    if (post.post.author.id !== req.user.id) {
+      throw new AppError("Forbidden", 403);
+    }
     return post;
   }
 
   @Get()
   public async getPostAll(
-    @Query() cursor?: number,
+    @Request() req: ExpressRequest,
+    @Query() cursor: number | null = null,
     @Query() limit: number = 10,
     @Query() type?: "suggest" | "following"
   ) {
     const posts = await this.getTimelineUseCase.execute({
+      viewerId: req.user.id,
       cursor,
       limit,
-      type,
     });
     return posts;
   }
