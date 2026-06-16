@@ -1,6 +1,4 @@
 import { col, fn, Op, Transaction } from "sequelize";
-import { S3Client } from "@aws-sdk/client-s3";
-import { BadRequestError } from "@/infrastructure/types/appError.js";
 import { randomUUID } from "crypto";
 import { supabase } from "@/infrastructure/storage/supabase.js";
 import { UploadType } from "./enum/UploadType.js";

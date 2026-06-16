@@ -26,10 +26,23 @@ interface PostAttributes {
   likes_count: number;
   comments_count: number;
   image_count: number;
-  createdAt: string;
+
+  createdAt: Date;
+  updatedAt: Date;
+  deletedAt?: Date;
 }
 
-interface PostCreationAttributes extends Optional<PostAttributes, "id"> {}
+interface PostCreationAttributes
+  extends Optional<
+    PostAttributes,
+    | "id"
+    | "likes_count"
+    | "comments_count"
+    | "image_count"
+    | "createdAt"
+    | "deletedAt"
+    | "updatedAt"
+  > {}
 
 @Table({
   tableName: "posts",
@@ -43,44 +56,44 @@ class Posts extends Model<PostAttributes, PostCreationAttributes> {
   @AutoIncrement
   @PrimaryKey
   @Column({ type: DataType.INTEGER })
-  id!: number;
+  declare id: number;
 
   @AllowNull(false)
   @ForeignKey(() => Users)
   @Column({ type: DataType.INTEGER })
-  user_id!: number;
+  declare user_id: number;
 
   @AllowNull(false)
   @Column({ type: DataType.STRING(50) })
-  title!: string;
+  declare title: string;
 
   @AllowNull(false)
   @Column({ type: DataType.TEXT })
-  content!: string;
+  declare content: string;
 
   @Default(0)
   @Column({ type: DataType.INTEGER })
-  likes_count!: number;
+  declare likes_count: number;
 
   @Default(0)
   @Column({ type: DataType.INTEGER })
-  comments_count!: number;
+  declare comments_count: number;
 
   @Default(0)
   @Column({ type: DataType.SMALLINT })
-  image_count!: number;
+  declare image_count: number;
 
   @BelongsToMany(() => Users, () => UserPostLikes)
-  likedUsers!: Users[];
+  declare likedUsers: Users[];
 
   @BelongsTo(() => Users, "user_id")
-  user!: Users;
+  declare user: Users;
 
   @HasMany(() => PostImages, {
     foreignKey: "post_id",
     as: "images",
   })
-  images!: PostImages[];
+  declare images: PostImages[];
 }
 
 export default Posts;

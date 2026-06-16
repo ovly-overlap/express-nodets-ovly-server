@@ -18,18 +18,18 @@ class UserHiddenPosts extends Model {
   @PrimaryKey
   @ForeignKey(() => Users)
   @Column(DataType.INTEGER)
-  user_id!: number;
+  declare user_id: number;
 
   @PrimaryKey
   @ForeignKey(() => Posts)
   @Column(DataType.INTEGER)
-  post_id!: number;
+  declare post_id: number;
 
   @BelongsTo(() => Users)
-  user!: Users;
+  declare user: Users;
 
   @BelongsTo(() => Posts)
-  post!: Posts;
+  declare post: Posts;
 }
 
 export default UserHiddenPosts;

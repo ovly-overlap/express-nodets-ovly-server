@@ -24,33 +24,33 @@ class Comments extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column({ type: DataType.INTEGER })
-  id!: number;
+  declare id: number;
 
   @ForeignKey(() => Posts)
   @Column({ type: DataType.INTEGER })
-  post_id!: number;
+  declare post_id: number;
 
   @ForeignKey(() => Users)
   @Column({ type: DataType.INTEGER })
-  user_id!: number;
+  declare user_id: number;
 
   @Default(null)
   @Column({ type: DataType.INTEGER })
-  parent_id!: number;
+  declare parent_id: number;
 
   @AllowNull(false)
   @Column({ type: DataType.TEXT })
-  content!: string;
+  declare content: string;
 
   @Default(0)
   @Column({ type: DataType.INTEGER })
-  likes_count: number;
+  declare likes_count: number;
 
   @BelongsTo(() => Posts)
-  post!: Posts;
+  declare post: Posts;
 
   @BelongsTo(() => Users)
-  user!: Users;
+  declare user: Users;
 }
 
 export default Comments;

@@ -40,8 +40,8 @@ export default class CreatePostUseCase {
 }
 
 class CreatePostRequest {
-  userId: number;
-  title: string;
-  content: string;
-  imageUrl: string[];
+  userId!: number;
+  title!: string;
+  content!: string;
+  imageUrl!: string[];
 }

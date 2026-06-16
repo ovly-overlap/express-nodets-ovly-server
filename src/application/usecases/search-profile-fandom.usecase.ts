@@ -21,12 +21,12 @@ export default class SearchProfileFandomUseCase
 }
 
 export class SearchProfileFandomRequset {
-  userId: number;
-  keyword: string;
+  userId!: number;
+  keyword!: string;
 }
 
 export class UserFandomsPreview {
-  id: number;
-  image_url: string;
-  name: string;
+  id!: number;
+  image_url!: string;
+  name!: string;
 }

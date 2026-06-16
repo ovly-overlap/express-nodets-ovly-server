@@ -1,26 +1,33 @@
-import {BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table} from "sequelize-typescript";
+import {
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  Model,
+  PrimaryKey,
+  Table,
+} from "sequelize-typescript";
 import Posts from "./posts.js";
 import Users from "./users.js";
 
 @Table({
-    tableName: "user_post_likes"
+  tableName: "user_post_likes",
 })
-class UserPostLikes extends Model{
-    @PrimaryKey
-    @ForeignKey(()=>Posts)
-    @Column({type:DataType.INTEGER})
-    post_id!: number; 
-    
-    @PrimaryKey
-    @ForeignKey(()=>Users)
-    @Column({type:DataType.INTEGER})
-    user_id!: number;
-    
+class UserPostLikes extends Model {
+  @PrimaryKey
+  @ForeignKey(() => Posts)
+  @Column({ type: DataType.INTEGER })
+  declare post_id: number;
 
-    @BelongsTo(()=>Posts, "post_id")
-    post!: Posts;
-    @BelongsTo(()=>Users, "user_id")
-    user!: Users;
+  @PrimaryKey
+  @ForeignKey(() => Users)
+  @Column({ type: DataType.INTEGER })
+  declare user_id: number;
+
+  @BelongsTo(() => Posts, "post_id")
+  declare post: Posts;
+  @BelongsTo(() => Users, "user_id")
+  declare user: Users;
 }
 
-export default UserPostLikes; 
+export default UserPostLikes;

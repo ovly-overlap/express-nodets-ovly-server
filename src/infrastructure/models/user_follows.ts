@@ -27,18 +27,18 @@ class UserFollows extends Model {
   @PrimaryKey
   @ForeignKey(() => Users)
   @Column({ type: DataType.INTEGER })
-  follower_id!: number;
+  declare follower_id: number;
 
   @PrimaryKey
   @ForeignKey(() => Users)
   @Column({ type: DataType.INTEGER })
-  following_id!: number;
+  declare following_id: number;
 
   @BelongsTo(() => Users, "following_id")
-  followingUser!: Users;
+  declare followingUser: Users;
 
   @BelongsTo(() => Users, "follower_id")
-  followerUser!: Users;
+  declare followerUser: Users;
 }
 
 export default UserFollows;

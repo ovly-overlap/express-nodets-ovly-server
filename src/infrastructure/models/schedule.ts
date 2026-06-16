@@ -47,27 +47,27 @@ class Schedule extends Model<ScheduleAttributes, ScheduleCreateAttributes> {
   @AutoIncrement
   @PrimaryKey
   @Column({ type: DataType.INTEGER })
-  id!: number;
+  declare id: number;
 
   @AllowNull(false)
   @ForeignKey(() => Users) // 유저 속성이 id가 들어오는게 맞는지 확인
   @Column({ type: DataType.INTEGER })
-  user_id!: number;
+  declare user_id: number;
 
   @AllowNull(false)
   @Column({ type: DataType.TEXT })
-  content!: string;
+  declare content: string;
 
   @AllowNull(true)
   @Column({ type: DataType.TEXT })
-  memo?: string;
+  declare memo: string | null;
 
   @Default(false)
   @Column({ type: DataType.BOOLEAN })
-  isDone!: boolean;
+  declare isDone: boolean;
 
   @BelongsTo(() => Users, "user_id")
-  user!: Users;
+  declare user: Users;
 
   @DeletedAt
   @Column(DataType.DATE)

@@ -26,36 +26,37 @@ interface NewsAttributesCreate extends Optional<NewsAttributes, "id"> {}
 
 @Table({
   // 하드삭제 paranoid no
-  tableName: "articles",
+  tableName: "news",
   timestamps: true,
   deletedAt: "deletedAt",
   createdAt: "createdAt",
 })
 class News extends Model<NewsAttributes, NewsAttributesCreate> {
   //  implements  ArticleAttributes
-  @Column({ type: DataType.INTEGER })
-  @PrimaryKey
   @AutoIncrement
-  id!: number;
+  @PrimaryKey
+  @Column({ type: DataType.INTEGER })
+  declare id: number;
 
   @AllowNull(false)
   @Column({ type: DataType.STRING })
-  title!: string;
+  declare title: string;
 
   @AllowNull(false)
   @Column({ type: DataType.STRING, unique: true })
-  url!: string;
+  declare url: string;
 
   @AllowNull(false)
   @Column({ type: DataType.STRING })
-  image_url!: string;
+  declare image_url: string;
 
   @AllowNull(false)
   @Column({ type: DataType.TEXT })
-  content!: string;
+  declare content: string;
 
+  @AllowNull(true)
   @Column(DataType.DATE)
-  publishedAt!: Date;
+  declare publishedAt: Date;
 }
 
 export default News;

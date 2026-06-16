@@ -19,26 +19,26 @@ class PostReports extends Model {
     type: DataType.INTEGER,
     allowNull: false,
   })
-  post_id!: number;
+  declare post_id: number;
 
   @ForeignKey(() => Users)
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
   })
-  user_id!: number;
+  declare user_id: number;
 
   @Column({
     type: DataType.STRING(255),
     allowNull: false,
   })
-  reason!: string;
+  declare reason: string;
 
   @BelongsTo(() => Posts)
-  post!: Posts;
+  declare post: Posts;
 
   @BelongsTo(() => Users)
-  user!: Users;
+  declare user: Users;
 }
 
 export default PostReports;

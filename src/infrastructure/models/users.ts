@@ -39,42 +39,42 @@ class Users extends Model<UserAttributes, UserCreationAttributes> {
   @AutoIncrement
   @PrimaryKey
   @Column({ type: DataType.INTEGER })
-  id!: number;
+  declare id: number;
 
   @Column({ type: DataType.STRING })
-  password!: string;
+  declare password: string;
 
   @Unique
   @AllowNull(false)
   @Column({ type: DataType.STRING(50), unique: true })
-  username!: string;
+  declare username: string;
 
   @Column({ type: DataType.STRING })
-  profile_image_url?: string;
+  declare profile_image_url: string | null;
 
   @Column({ type: DataType.STRING(70) })
-  intro?: string;
+  declare intro: string | null;
 
   @Column({ type: DataType.STRING })
-  refreshToken?: string;
+  declare refreshToken: string | null;
 
   @BelongsToMany(() => Users, () => UserFollows, "follower_id", "following_id")
-  followings!: Users[];
+  declare followings: Users[];
 
   @BelongsToMany(() => Users, () => UserFollows, "following_id", "follower_id")
-  followers!: Users[];
+  declare followers: Users[];
 
   @HasMany(() => Posts, "user_id")
-  posts!: Posts[];
+  declare posts: Posts[];
 
   @HasMany(() => Comments, "user_id")
-  comments!: Comments[];
+  declare comments: Comments[];
 
   @HasMany(() => UserFandoms, "user_id")
-  userFandoms!: UserFandoms[];
+  declare userFandoms: UserFandoms[];
 
   @BelongsToMany(() => Posts, () => UserPostLikes)
-  likedPosts!: Posts[];
+  declare likedPosts: Posts[];
 }
 
 export default Users;

@@ -18,21 +18,21 @@ class UserFandoms extends Model {
   @PrimaryKey
   @ForeignKey(() => Users)
   @Column({ type: DataType.INTEGER })
-  user_id!: number;
+  declare user_id: number;
 
   @PrimaryKey
   @ForeignKey(() => Fandoms)
   @Column({ type: DataType.INTEGER })
-  fandom_id!: number;
+  declare fandom_id: number;
 
   @Column({ type: DataType.STRING })
-  fandom_image_url!: string;
+  declare fandom_image_url: string;
 
   @BelongsTo(() => Fandoms, "fandom_id")
-  fandom!: Fandoms;
+  declare fandom: Fandoms;
 
   @BelongsTo(() => Users, "user_id")
-  user!: Users;
+  declare user: Users;
 }
 
 export default UserFandoms;
