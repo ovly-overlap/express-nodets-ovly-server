@@ -22,10 +22,9 @@ export default class CreatePostUseCase {
       );
 
       if (req.imageUrl.length > 0) {
-        await this.uploadsService.createImages(
-          req.imageUrl,
+        await this.uploadsService.createPostImages(
           post.id,
-          req.userId,
+          req.imageUrl,
           transaction
         );
       }

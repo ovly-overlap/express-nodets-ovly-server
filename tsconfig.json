@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
+    "target": "ES2022",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "allowJs": true,
@@ -8,7 +8,7 @@
     "resolveJsonModule": true,
     "outDir": "dist",
     "typeRoots": ["./node_modules/@types", "src/infrastructure/types"],
-    "strict": false,
+    "strict": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": false,
     "esModuleInterop": true,

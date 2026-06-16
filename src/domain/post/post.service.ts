@@ -67,7 +67,7 @@ export class PostService {
   }
 
   private readonly bannedWordRegex =
-    /(시발|병신|개새끼|fuck|알페스|나페스|시@발|십알|좆|씨발|ㅄ|ㅂㅅ|ㅅㅂ|tlqkf|지랄|ㅈㄹ|ㅈ같|야한|야하다|대가리|존못|뻐큐|팬픽|멍청|개새|개련|상련|쌍련|방시혁|과즙세연|한남|한녀|죽어|자살|자해|죽여|살해|한강물|투신|우동사리)/i;
+    /(시발|병신|개새끼|fuck|알페스|나페스|시@발|십알|좆|씨발|ㅄ|ㅂㅅ|ㅅㅂ|tlqkf|지랄|ㅈㄹ|ㅈ같|야한|야하다|대가리|존못|뻐큐|팬픽|멍청|개새|개련|상련|쌍련|방시혁|과즙세연|한남|한녀|죽어|자살|자해|죽여|살해|한강물|투신|우동사리|일베|노무현)/i;
 
   private containsBannedWord(text: string): boolean {
     return this.bannedWordRegex.test(text);

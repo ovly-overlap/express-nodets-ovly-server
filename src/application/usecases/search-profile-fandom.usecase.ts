@@ -1,6 +1,5 @@
 import { UsersService } from "@/domain/users/users.service.js";
 import UseCase from "@/infrastructure/types/UseCase.js";
-import { plainToInstance } from "class-transformer";
 
 export default class SearchProfileFandomUseCase
   implements UseCase<SearchProfileFandomRequset, UserFandomsPreview[] | null>

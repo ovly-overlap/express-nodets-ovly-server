@@ -1,5 +1,4 @@
 import { col, fn, Op, Transaction } from "sequelize";
-import Images from "../../infrastructure/models/images.js";
 import { S3Client } from "@aws-sdk/client-s3";
 import { BadRequestError } from "@/infrastructure/types/appError.js";
 import { randomUUID } from "crypto";
@@ -7,6 +6,7 @@ import { supabase } from "@/infrastructure/storage/supabase.js";
 import { UploadType } from "./enum/UploadType.js";
 import { CalendarPostPreview } from "@/application/usecases/get-profile.usecase.js";
 import Posts from "@/infrastructure/models/posts.js";
+import PostImages from "@/infrastructure/models/post_images.js";
 
 export default class UploadsService {
   private readonly bucketName = "images";
@@ -58,20 +58,19 @@ export default class UploadsService {
     }
   }
 
-  async createImages(
+  async createPostImages(
+    postId: number,
     imageUrls: string[],
-    targetId: number,
-    userId: number,
     transaction: Transaction
   ) {
-    const ImagesData = imageUrls.map((url, i) => ({
-      // id:postId,
-      user_id: userId,
-      target_id: targetId,
-      image_url: url,
-      image_index: i,
-    }));
-    return await Images.bulkCreate(ImagesData, { transaction });
+    return PostImages.bulkCreate(
+      imageUrls.map((url, index) => ({
+        post_id: postId,
+        image_url: url,
+        image_index: index,
+      })),
+      { transaction }
+    );
   }
 
   // async getOnePostImages(postId: number, t: Transaction) {
@@ -97,14 +96,14 @@ export default class UploadsService {
     const posts = await Posts.findAll({
       where: {
         user_id: userId,
-        createAt: {
+        createdAt: {
           [Op.gte]: startDate,
           [Op.lt]: endDate,
         },
       },
       include: [
         {
-          model: Images,
+          model: PostImages,
           where: {
             image_index: 0,
           },
