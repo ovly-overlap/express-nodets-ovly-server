@@ -23,11 +23,15 @@ export class AuthService {
   // }
 
   async signUp(data: SignUpDto): Promise<any> {
-    const { username, password } = data;
+    const { username, password, passwordConfirm } = data;
 
     const existUser = await Users.findOne({ where: { username } });
     if (existUser) {
       throw new AppError("존재하는 유저", 409);
+    }
+
+    if (password !== passwordConfirm) {
+      throw new AppError(ErrorCode.INVALID_PASSWORD);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);

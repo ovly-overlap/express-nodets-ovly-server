@@ -36,26 +36,11 @@ RegisterRoutes(app);
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-// interface ErrorType {
-//   message: string;
-//   status: number;
-// }
-
 app.use(express.json());
 app.use(cookieParser());
 app.use(rateLimiter);
 
-// TODO : error Handler 나중에 발전
-// // app.use(errorConverter)
-// app.use(errorHandler);
-
-//
-// app.get("/", (_: Request, res: Response) => {
-  //   res.send("Hello World")
-  // })
-  console.log(process.env.SUPABASE_URL);
-
-  startNewsCron();
+startNewsCron();
 
   
 app
