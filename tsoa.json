@@ -9,5 +9,6 @@
   "routes": {
     "routesDir": "src/tsoa"
   },
-  "authenticationModule": "src/infrastructure/middleware/authentication.ts"
+  "authenticationModule": "src/infrastructure/middleware/authentication.ts",
+  "validation": false
 }
