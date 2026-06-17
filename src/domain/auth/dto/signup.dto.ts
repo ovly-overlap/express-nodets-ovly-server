@@ -23,6 +23,6 @@ export class SignUpDto {
 
   @IsString()
   @IsNotEmpty({ message: "비밀번호 확인을 입력해주세요" })
-  @Match("password", { message: "비밀번호가 일치하지 않습니다" })
+  // @Match("password", { message: "비밀번호가 일치하지 않습니다" })
   passwordConfirm!: string;
 }
