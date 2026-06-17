@@ -1,6 +1,6 @@
 {
   "entryFile": "src/app.ts",
-  "noImplicitAdditionalProperties": "throw-on-extras",
+  "noImplicitAdditionalProperties": "ignore",
   "controllerPathGlobs": ["src/domain/**/*.controller.ts"],
   "spec": {
     "outputDirectory": "src/tsoa",
