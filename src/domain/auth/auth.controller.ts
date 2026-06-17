@@ -29,6 +29,15 @@ export class AuthController extends Controller {
   // }
   private readonly authService = new AuthService();
 
+  @Get("me")
+  @Security("jwt")
+  async me(@Request() req: ExpressRequest): Promise<{id: number, username: string}>{
+    return {
+      id: req.user.id,
+      username: req.user.name
+   }
+  }
+
   @Post("signup")
   @SuccessResponse("201", "Created")
   @Example<SignUpDto>({

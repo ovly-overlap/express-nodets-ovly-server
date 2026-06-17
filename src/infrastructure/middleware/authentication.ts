@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+
 import { Request } from "express";
 
 export async function expressAuthentication(
@@ -6,15 +8,14 @@ export async function expressAuthentication(
   scopes?: string[]
 ): Promise<any> {
   if (securityName === "jwt") {
-    const token = request.headers.authorization?.split(" ")[1];
+    const token = request.cookies.accessToken;
 
     if (!token) {
       throw new Error("Unauthorized");
     }
 
-    return {
-      id: 1,
-    };
+    const payload = jwt.verify(token, process.env.SECRET_KEY!);
+    return payload;
   }
 
   throw new Error("Unauthorized");

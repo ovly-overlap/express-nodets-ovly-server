@@ -1,6 +1,6 @@
 {
   "development": {
-    "username": "root",
+    "username": "ovly",
     "password": "0000",
     "database": "ovly",
     "host": "127.0.0.1",
@@ -8,17 +8,17 @@
     "logging": true
   },
   "test": {
-    "username": "root",
-    "password": null,
-    "database": "database_test",
+    "username": "ovly",
+    "password": "0000",
+    "database": "ovly",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "logging": true
   },
   "production": {
-    "username": "root",
+    "username": "ovly",
     "password": null,
-    "database": "database_production",
+    "database": "ovly",
     "host": "127.0.0.1",
     "dialect": "mysql",
     "logging": true

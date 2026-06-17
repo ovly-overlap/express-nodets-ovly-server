@@ -17,7 +17,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/app.ts",
-    "bulid": "tsc",
+    "bulid": "tsc && tsc-alias",
     "start": "node dist/app.js"
   },
   "overrides": {
@@ -47,6 +47,7 @@
     "rss-parser": "^3.13.0",
     "sequelize": "^6.37.8",
     "sequelize-typescript": "^2.1.6",
+    "tsc-alias": "^1.8.17",
     "tsoa": "^6.6.0",
     "winston": "^3.19.0",
     "winston-daily-rotate-file": "^5.0.0",
