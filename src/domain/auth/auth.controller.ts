@@ -31,11 +31,13 @@ export class AuthController extends Controller {
 
   @Get("me")
   @Security("jwt")
-  async me(@Request() req: ExpressRequest): Promise<{id: number, username: string}>{
+  async me(
+    @Request() req: ExpressRequest
+  ): Promise<{ id: number; username: string }> {
     return {
       id: req.user.id,
-      username: req.user.name
-   }
+      username: req.user.name,
+    };
   }
 
   @Post("signup")
@@ -45,10 +47,7 @@ export class AuthController extends Controller {
     password: "00000000",
     passwordConfirm: "00000000",
   })
-  async signUp(
-    @Request() req: ExpressRequest,
-    @Body() body: SignUpDto
-  ): Promise<void> {
+  async signUp(@Body() body: SignUpDto): Promise<void> {
     const { username, password, passwordConfirm } = body;
     await this.authService.signUp({ username, password, passwordConfirm });
   }
