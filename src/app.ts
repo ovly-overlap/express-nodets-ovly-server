@@ -12,6 +12,7 @@ import swaggerUi from "swagger-ui-express";
 import swaggerDocument from "./tsoa/swagger.json" with {type: "json"};
 import { startNewsCron } from "./domain/news/news.cron.js";
 import { RegisterRoutes } from "./tsoa/routes.js";
+import cors from "cors";
 
 sequelize
   .sync({ force: false })
@@ -25,11 +26,15 @@ sequelize
 const app = express();
 
 const newsSyncJob = new NewsSyncJob();
+app.use(
+  cors({
+    origin: true, 
+    credentials: true,
+  })
+);
 RegisterRoutes(app);
 
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-
 
 interface ErrorType {
   message: string;
@@ -39,8 +44,6 @@ interface ErrorType {
 app.use(express.json());
 app.use(cookieParser());
 app.use(rateLimiter);
-// app.use(cors());
-// app.use(authMiddleware); // 전체 인증
 
 // TODO : error Handler 나중에 발전
 // // app.use(errorConverter)
@@ -62,6 +65,7 @@ app.use(rateLimiter);
     res.status(err.status || 500);
     res.render("error");
   });
+
   
 app
   .listen(process.env.PORT, async () => {
