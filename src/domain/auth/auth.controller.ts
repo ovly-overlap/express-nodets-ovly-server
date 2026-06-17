@@ -47,9 +47,9 @@ export class AuthController extends Controller {
     password: "00000000",
     passwordConfirm: "00000000",
   })
-  async signUp(@Body() body: SignUpDto): Promise<void> {
-    const { username, password, passwordConfirm } = body;
-    console.log("BODY:", body);
+  async signUp(@Body() signUpdto: SignUpDto): Promise<void> {
+    const { username, password, passwordConfirm } = signUpdto;
+    console.log("BODY:", signUpdto);
     await this.authService.signUp({ username, password, passwordConfirm });
   }
 
