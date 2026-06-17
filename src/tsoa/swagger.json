@@ -41,7 +41,7 @@
 					"users"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"UpdateImageReq": {
 				"properties": {
@@ -53,7 +53,7 @@
 					"imageUrl"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"UpdateIntroReq": {
 				"properties": {
@@ -69,7 +69,7 @@
 					"newIntro"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"UpdateOrCreateFandomReq": {
 				"properties": {
@@ -85,7 +85,7 @@
 					"newFandomIds"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"CreateUploadUrlResponse": {
 				"properties": {
@@ -101,7 +101,7 @@
 					"path"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"ScheduleResponse": {
 				"properties": {
@@ -132,7 +132,7 @@
 					"isDone"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"LikePostResponse": {
 				"properties": {
@@ -144,7 +144,7 @@
 					"liked"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"LikedUserPreviewDto": {
 				"properties": {
@@ -170,7 +170,7 @@
 					"isFollowing"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"LikedUsersCursorResponse": {
 				"properties": {
@@ -195,7 +195,7 @@
 					"hasNext"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"PostResponseDTO": {
 				"properties": {
@@ -230,7 +230,7 @@
 					"commentCount"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"CreatePostDTO": {
 				"properties": {
@@ -253,7 +253,7 @@
 					"image_url"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"FollowerPreviewDto": {
 				"properties": {
@@ -279,7 +279,7 @@
 					"isFollowing"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"FollowersResponseDto": {
 				"properties": {
@@ -303,7 +303,7 @@
 					"hasNext"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"CommentResponse": {
 				"properties": {
@@ -357,7 +357,7 @@
 					"author"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"SignUpDto": {
 				"properties": {
@@ -377,7 +377,7 @@
 					"passwordConfirm"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"CheckIdResponse": {
 				"properties": {
@@ -393,7 +393,7 @@
 					"message"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"SignInResponseDto": {
 				"properties": {
@@ -405,7 +405,7 @@
 					"accessToken"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"SignInDto": {
 				"properties": {
@@ -421,7 +421,7 @@
 					"password"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			},
 			"RefreshTokenResponseDto": {
 				"properties": {
@@ -433,7 +433,7 @@
 					"accessToken"
 				],
 				"type": "object",
-				"additionalProperties": false
+				"additionalProperties": true
 			}
 		},
 		"securitySchemes": {}
