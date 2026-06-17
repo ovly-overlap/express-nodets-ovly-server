@@ -49,6 +49,7 @@ export class AuthController extends Controller {
   })
   async signUp(@Body() body: SignUpDto): Promise<void> {
     const { username, password, passwordConfirm } = body;
+    console.log("BODY:", body);
     await this.authService.signUp({ username, password, passwordConfirm });
   }
 
