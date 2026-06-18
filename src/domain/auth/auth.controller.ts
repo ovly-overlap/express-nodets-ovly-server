@@ -20,6 +20,7 @@ import { SignUpDto } from "./dto/signup.dto.js";
 import { SignInResponseDto } from "./dto/signin-response.dto.js";
 import { CheckIdResponse } from "./dto/signup.check-id-response.dto.js";
 import { RefreshTokenResponseDto } from "./dto/refresh-token-response.dto.js";
+import { UsersService } from "../users/users.service.js";
 
 @Route("auth")
 @Tags("auth")
@@ -28,15 +29,17 @@ export class AuthController extends Controller {
   //   super();
   // }
   private readonly authService = new AuthService();
+  private readonly userService = new UsersService();
 
   @Get("me")
   @Security("jwt")
   async me(
     @Request() req: ExpressRequest
   ): Promise<{ id: number; username: string }> {
+    const user = await this.userService.getUserById(req.user.id);
     return {
-      id: req.user.id,
-      username: req.user.name,
+      id: user.id,
+      username: user.username,
     };
   }
 
@@ -83,7 +86,13 @@ export class AuthController extends Controller {
       sameSite: "strict",
       maxAge: 24 * 60 * 60 * 1000, // 1d
     });
-    return { accessToken: result.accessToken };
+    return {
+      accessToken: result.accessToken,
+      user: {
+        id: result.id,
+        username: result.username
+      }
+    };
   }
 
   @Post("refresh")

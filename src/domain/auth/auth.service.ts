@@ -47,11 +47,12 @@ export class AuthService {
   }
 
   async signIn(data: SignInDto): Promise<any> {
-    const JWT_SECRET = process.env.JWT_SECRET!;
-    const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
+    const JWT_SECRET = process.env.SECRET_KEY!;
+    const JWT_REFRESH_SECRET = process.env.REFRESH_SECRET_KEY!;
     const ACCESS_TOKEN_EXPIRES = process.env.ACCESS_TOKEN_EXPIRES!;
 
     const { username, password } = data;
+    console.log("백엔드가 받은 username:", username); // 🚨 여기에 '곽곽디라라'가 진짜 찍히는지 확인!
     const existUser = await Users.findOne({ where: { username } });
 
     if (!existUser) throw new AppError("존재하지 않는 유저", 400);
@@ -60,7 +61,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new AppError(ErrorCode.INVALID_CREDENTIALS, 401);
     }
-    const payload = { userId: existUser.id, username: username };
+    const payload = { id: existUser.id, username: username };
     const token = jwt.sign(payload, JWT_SECRET, {
       expiresIn: ACCESS_TOKEN_EXPIRES as StringValue,
       algorithm: "HS256",
@@ -76,6 +77,10 @@ export class AuthService {
       accessToken: token,
       refreshToken: refreshToken,
       tokenExpires: new Date(Date.now() + ACCESS_TOKEN_EXPIRES),
+      user: {
+        id: existUser.id,
+        username: existUser.username,
+      }
     };
   }
 
@@ -93,12 +98,13 @@ export class AuthService {
     try {
       const decoded = jwt.verify(
         receiveRefreshToken,
-        process.env.JWT_REFRESH_SECRET!
+        process.env.REFRESH_SECRET_KEY!
       ) as {
-        userId: string;
+        id: string,
+        username: string
       };
 
-      const user = await Users.findByPk(decoded.userId);
+      const user = await Users.findByPk(decoded.id);
 
       const isValidRefreshToken = await bcrypt.compare(
         receiveRefreshToken,
@@ -109,8 +115,8 @@ export class AuthService {
         throw new AppError("유효하지 않은 리프레시 토큰", 401);
       }
       const newAccessToken = jwt.sign(
-        { userId: user.id, username: user.username },
-        process.env.JWT_SECRET!,
+        { id: user.id, username: user.username },
+        process.env.SECRET_KEY!,
         {
           expiresIn: process.env.ACCESS_TOKEN_EXPIRES as StringValue,
           algorithm: "HS256",

@@ -1,7 +1,8 @@
-import { IsString, IsNotEmpty } from "class-validator";
 
 export class SignInResponseDto {
-  @IsString()
-  @IsNotEmpty()
   accessToken!: string;
+  user!: {
+    id: number,
+    username: string;
+  }
 }
