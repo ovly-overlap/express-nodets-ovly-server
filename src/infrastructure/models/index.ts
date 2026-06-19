@@ -13,7 +13,17 @@ import PostReports from './post_reports.js';
 import Schedule from './schedule.js';
 import UserHiddenPosts from './user_hidden_posts.js';
 
-const sequelize = new Sequelize(process.env.DATABASE_URL!, {
+const databaseUrl = process.env.DATABASE_URL?.trim().replace(/^['"]|['"]$/g, "");
+
+if (!databaseUrl) {
+  throw new Error("DATABASE_URL environment variable is required.");
+}
+
+if (!/^postgres(ql)?:\/\//.test(databaseUrl)) {
+  throw new Error("DATABASE_URL must start with postgres:// or postgresql://.");
+}
+
+const sequelize = new Sequelize(databaseUrl, {
   dialect: 'postgres',
   timezone: '+09:00',
   dialectOptions: {
