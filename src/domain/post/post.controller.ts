@@ -24,6 +24,8 @@ import { LikePostResponse } from "./dto/like-post-response.dto.js";
 import { LikedUsersCursorResponse } from "./dto/liked-users-cursor-response-dto.js";
 import CommentService from "../comment/comment.service.js";
 import UploadsService from "../uploads/upload.service.js";
+import GetOvlyTimelineMainUseCase from "@/application/usecases/get-ovly-timeline-main.usecase.js";
+import { UsersService } from "../users/users.service.js";
 
 @Route("posts")
 @Tags("Post")
@@ -56,6 +58,11 @@ export class PostController extends Controller {
   private readonly getTimelineUseCase = new GetOvlyTimelineUseCase(
     this.postService
   );
+
+  private readonly getMainTimelineUseCase = new GetOvlyTimelineMainUseCase(
+    this.postService,
+    new UsersService()
+  )
 
   private readonly createPostUseCase = new CreatePostUseCase(
     this.postService,
@@ -142,16 +149,32 @@ export class PostController extends Controller {
     }
   }
 
-  @Get("ovly/{type}")
+  @Get("timeline/main/{type}")
+  async getTimeline(
+    @Request() req: ExpressRequest,
+    @Path() type: "following" | "suggest" = "suggest",
+    @Query() cursor?: number,
+    @Query() limit: number = 10
+  ) {
+    const postAndRecommendedFriends = await this.getMainTimelineUseCase.execute({
+      viewerId: req.user.id,
+      cursor: cursor ?? null,
+      limit,
+      type
+    });
+    return postAndRecommendedFriends;
+  }
+
+  @Get("timeline/{type}")
   async getFollowingPostAll(
     @Request() req: ExpressRequest,
     @Path() type: "following" | "suggest" = "suggest",
-    @Query() cursor: number | null = null,
+    @Query() cursor?: number,
     @Query() limit: number = 10
   ) {
     const posts = await this.getTimelineUseCase.execute({
       viewerId: req.user.id,
-      cursor,
+      cursor: cursor ?? null,
       limit,
       type,
     });

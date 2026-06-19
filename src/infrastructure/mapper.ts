@@ -14,6 +14,7 @@ import {
 export class TimelineMapper {
   static toResponse(post: Posts) {
     return {
+      id: post.id,
       timeAgo: getTimeAge(post.createdAt),
 
       content: post.content,
@@ -27,7 +28,7 @@ export class TimelineMapper {
       author: {
         id: post.user.id,
         username: post.user.username,
-        ProfileImageUrl: post.user.profile_image_url,
+        profileImageUrl: post.user.profile_image_url,
       },
     };
   }
@@ -40,8 +41,6 @@ export class CommentMapper {
       parentId: comments.parent_id,
       content: comments.content,
       likeCount: comments.likes_count,
-      timeAgo: getTimeAge(comments.createdAt),
-
       author: {
         id: comments.user_id,
         username: comments.user.username,

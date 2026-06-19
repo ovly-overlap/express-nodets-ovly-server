@@ -22,6 +22,7 @@ import { AuthController } from './../domain/auth/auth.controller.js';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
+
 import { expressAuthentication } from "@/infrastructure/middleware/authentication.js";
 
 const expressAuthenticationRecasted = expressAuthentication as (
@@ -198,6 +199,7 @@ const models: TsoaRoute.Models = {
         "dataType": "refObject",
         "properties": {
             "accessToken": { "dataType": "string", "required": true },
+            "user": { "dataType": "nestedObjectLiteral", "nestedProperties": { "username": { "dataType": "string", "required": true }, "id": { "dataType": "double", "required": true } }, "required": true },
         },
         "additionalProperties": true,
     },
@@ -680,13 +682,47 @@ export function RegisterRoutes(app: Router) {
             }
         });
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    const argsPostController_getTimeline: Record<string, TsoaRoute.ParameterSchema> = {
+        req: { "in": "request", "name": "req", "required": true, "dataType": "object" },
+        type: { "default": "suggest", "in": "path", "name": "type", "required": true, "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["following"] }, { "dataType": "enum", "enums": ["suggest"] }] },
+        cursor: { "in": "query", "name": "cursor", "dataType": "double" },
+        limit: { "default": 10, "in": "query", "name": "limit", "dataType": "double" },
+    };
+    app.get('/posts/timeline/main/:type',
+        authenticateMiddleware([{ "jwt": [] }]),
+        ...(fetchMiddlewares<RequestHandler>(PostController)),
+        ...(fetchMiddlewares<RequestHandler>(PostController.prototype.getTimeline)),
+
+        async function PostController_getTimeline(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsPostController_getTimeline, request, response });
+
+                const controller = new PostController();
+
+                await templateService.apiHandler({
+                    methodName: 'getTimeline',
+                    controller,
+                    response,
+                    next,
+                    validatedArgs,
+                    successStatus: undefined,
+                });
+            } catch (err) {
+                return next(err);
+            }
+        });
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
     const argsPostController_getFollowingPostAll: Record<string, TsoaRoute.ParameterSchema> = {
         req: { "in": "request", "name": "req", "required": true, "dataType": "object" },
         type: { "default": "suggest", "in": "path", "name": "type", "required": true, "dataType": "union", "subSchemas": [{ "dataType": "enum", "enums": ["following"] }, { "dataType": "enum", "enums": ["suggest"] }] },
-        cursor: { "default": null, "in": "query", "name": "cursor", "dataType": "union", "subSchemas": [{ "dataType": "double" }, { "dataType": "enum", "enums": [null] }] },
+        cursor: { "in": "query", "name": "cursor", "dataType": "double" },
         limit: { "default": 10, "in": "query", "name": "limit", "dataType": "double" },
     };
-    app.get('/posts/ovly/:type',
+    app.get('/posts/timeline/:type',
         authenticateMiddleware([{ "jwt": [] }]),
         ...(fetchMiddlewares<RequestHandler>(PostController)),
         ...(fetchMiddlewares<RequestHandler>(PostController.prototype.getFollowingPostAll)),

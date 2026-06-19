@@ -399,10 +399,27 @@
 				"properties": {
 					"accessToken": {
 						"type": "string"
+					},
+					"user": {
+						"properties": {
+							"username": {
+								"type": "string"
+							},
+							"id": {
+								"type": "number",
+								"format": "double"
+							}
+						},
+						"required": [
+							"username",
+							"id"
+						],
+						"type": "object"
 					}
 				},
 				"required": [
-					"accessToken"
+					"accessToken",
+					"user"
 				],
 				"type": "object",
 				"additionalProperties": true
@@ -957,7 +974,64 @@
 				}
 			}
 		},
-		"/posts/ovly/{type}": {
+		"/posts/timeline/main/{type}": {
+			"get": {
+				"operationId": "GetTimeline",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"tags": [
+					"Post"
+				],
+				"security": [
+					{
+						"jwt": []
+					}
+				],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "type",
+						"required": false,
+						"schema": {
+							"default": "suggest",
+							"type": "string",
+							"enum": [
+								"following",
+								"suggest"
+							]
+						}
+					},
+					{
+						"in": "query",
+						"name": "cursor",
+						"required": false,
+						"schema": {
+							"format": "double",
+							"type": "number"
+						}
+					},
+					{
+						"in": "query",
+						"name": "limit",
+						"required": false,
+						"schema": {
+							"default": 10,
+							"format": "double",
+							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/posts/timeline/{type}": {
 			"get": {
 				"operationId": "GetFollowingPostAll",
 				"responses": {
@@ -997,7 +1071,6 @@
 						"name": "cursor",
 						"required": false,
 						"schema": {
-							"default": null,
 							"format": "double",
 							"type": "number"
 						}

@@ -4,6 +4,7 @@ import { Op } from "sequelize";
 import sequelize, {
   Fandoms,
   UserFandoms,
+  UserFollows,
 } from "@/infrastructure/models/index.js";
 
 // TODO : 유저 검색
@@ -12,7 +13,7 @@ import sequelize, {
 //TODO : t 처리
 
 export class UsersService {
-  constructor() {}
+  constructor() { }
 
   public async findById(id: number): Promise<Users> {
     const user = await Users.findByPk(id, {
@@ -82,10 +83,10 @@ export class UsersService {
 
         ...(cursor
           ? {
-              id: {
-                [Op.lt]: cursor,
-              },
-            }
+            id: {
+              [Op.lt]: cursor,
+            },
+          }
           : {}),
       },
 
@@ -138,6 +139,28 @@ export class UsersService {
         },
       },
       limit: 20,
+    });
+  }
+
+  public async getRecentUnfollowedUsers(currentUserId: number): Promise<Users[]> {
+    // 1. 현재 내가 팔로우하고 있는 유저 ID 목록 조회
+    const followingUsers = await UserFollows.findAll({
+      where: { follower_id: currentUserId }, // 내가 팔로우하는 대상들
+      attributes: ["following_id"],
+    });
+
+    const followingIds = followingUsers.map((follow) => follow.following_id);
+
+    followingIds.push(currentUserId);
+
+    return await Users.findAll({
+      where: {
+        id: {
+          [Op.notIn]: followingIds,
+        },
+      },
+      order: [["createdAt", "DESC"]],
+      limit: 4,
     });
   }
 }

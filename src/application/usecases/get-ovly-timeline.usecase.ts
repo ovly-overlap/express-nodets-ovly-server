@@ -3,10 +3,11 @@ import UseCase from "@/infrastructure/types/UseCase.js";
 import { TimelineMapper } from "@/infrastructure/mapper.js";
 import CursorResponse from "@/infrastructure/types/cursorResponse.js";
 
+
 export default class GetOvlyTimelineUseCase
-  implements UseCase<GetTimelineRequest, CursorResponse<TimelinePostResponse>>
-{
-  constructor(private readonly postService: PostService) {}
+  implements UseCase<GetTimelineRequest, CursorResponse<TimelinePostResponse>> {
+  constructor(
+    private readonly postService: PostService) { }
 
   async execute(
     req: GetTimelineRequest
@@ -15,10 +16,10 @@ export default class GetOvlyTimelineUseCase
       req.type === "suggest"
         ? await this.postService.getPostAll(req.viewerId, req.cursor, req.limit)
         : await this.postService.getPostAllFollowings(
-            req.viewerId,
-            req.cursor,
-            req.limit
-          );
+          req.viewerId,
+          req.cursor,
+          req.limit
+        );
 
     return {
       items: result.items.map(TimelineMapper.toResponse),
@@ -31,10 +32,11 @@ export default class GetOvlyTimelineUseCase
 }
 
 export class TimelinePostResponse {
+  id!: number;
   author!: {
     id: number;
     username: string;
-    ProfileImageUrl: string | null;
+    profileImageUrl: string | null;
   };
   content!: string;
   uploadedImageUrls!: string[] | null;
@@ -49,3 +51,4 @@ class GetTimelineRequest {
   limit!: number;
   type!: "following" | "suggest";
 }
+

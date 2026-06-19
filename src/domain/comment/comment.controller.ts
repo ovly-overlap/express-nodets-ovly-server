@@ -5,6 +5,8 @@ import {
   Security,
   Tags,
   Request,
+  Delete,
+  Path,
 } from "@tsoa/runtime";
 import { Request as ExpressRequest } from "express";
 import CommentService from "./comment.service.js";
@@ -52,6 +54,27 @@ export class CommentController extends Controller {
         username: comment.user.username,
         profileImageUrl: comment.user.profile_image_url,
       },
+    };
+  }
+
+  @Delete("{commentId}")
+  async deleteComment(
+    @Request() req: ExpressRequest,
+    @Path() commentId: number // 💡 삭제하고자 하는 댓글의 고유 ID
+  ): Promise<{ message: string; deletedCount: number }> {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      throw new AppError(ErrorCode.UNAUTHORIZED, 401);
+    }
+
+    // 서비스 레이어에 삭제 요청 (본인 확인용 userId와 삭제할 commentId 전달)
+    const result = await this.commentService.deleteCommentCascade(userId, commentId);
+
+    this.setStatus(200);
+    return {
+      message: "댓글이 성공적으로 삭제되었습니다.",
+      deletedCount: result.deletedCount // 몇 개가 지워졌는지 반환 (본인+자식들)
     };
   }
 }

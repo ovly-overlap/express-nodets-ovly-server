@@ -1,5 +1,5 @@
 // controllers/auth.controller.ts
-import { NextFunction, Request as ExpressRequest, Response } from "express"; // Ensure Response is imported from express
+import { Request as ExpressRequest } from "express"; // Ensure Response is imported from express
 import { AppError } from "@/infrastructure/types/appError.js";
 import { AuthService } from "@/domain/auth/auth.service.js";
 import {
