@@ -1,5 +1,5 @@
-import dotenv from "dotenv";
-dotenv.config();
+import 'dotenv/config';
+import 'module-alias/register';
 import express, { Request, Response, NextFunction } from "express";
 import cookieParser from "cookie-parser";
 import sequelize from "@/infrastructure/models/index.js";
@@ -24,6 +24,8 @@ sequelize
 
 const app = express();
 const newsSyncJob = new NewsSyncJob();
+const isNewsSyncEnabled = process.env.NEWS_SYNC_ENABLED !== "false";
+const shouldRunNewsSyncOnStart = process.env.NEWS_SYNC_ON_START !== "false";
 
 // 2. 글로벌 미들웨어 설정 (🚨 순서 극도로 중요!)
 app.use(
@@ -44,7 +46,9 @@ RegisterRoutes(app);
 app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // 4. 크론탭 시작
-startNewsCron();
+if (isNewsSyncEnabled) {
+  startNewsCron();
+}
 
 // 5. 에러 핸들링 미들웨어 (맨 아래 유지)
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -69,7 +73,16 @@ app
         🛡️  Server listening on port ${process.env.PORT} 🛡️
     ################################################
   `);
-    await newsSyncJob.execute();
+    if (isNewsSyncEnabled && shouldRunNewsSyncOnStart) {
+      try {
+        await newsSyncJob.execute();
+      } catch (error) {
+        console.error(
+          "Initial news sync failed:",
+          error instanceof Error ? error.message : error
+        );
+      }
+    }
   })
   .on("error", (err) => {
     console.error(err);

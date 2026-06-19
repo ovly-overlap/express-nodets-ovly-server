@@ -1,18 +1,26 @@
-// infrastructure/cron/news.cron.ts
-
 import cron from "node-cron";
 import { NewsSyncJob } from "./news-sync.job.js";
 
 const newsSyncJob = new NewsSyncJob();
+const isVerboseNewsLog = process.env.NEWS_SYNC_VERBOSE === "true";
 
 export function startNewsCron() {
   cron.schedule("0 */30 * * * *", async () => {
-    console.log("뉴스 수집 시작");
+    if (isVerboseNewsLog) {
+      console.log("News sync started");
+    }
 
     try {
       await newsSyncJob.execute();
     } catch (error) {
-      console.error(error);
+      if (isVerboseNewsLog) {
+        console.error(error);
+      } else {
+        console.error(
+          "News sync failed:",
+          error instanceof Error ? error.message : error
+        );
+      }
     }
   });
 }

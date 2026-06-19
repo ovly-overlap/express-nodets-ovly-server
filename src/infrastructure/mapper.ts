@@ -37,6 +37,7 @@ export class TimelineMapper {
 export class CommentMapper {
   static toResponse(comments: Comments) {
     return {
+      timeAgo: getTimeAge(comments.createdAt),
       id: comments.post_id,
       parentId: comments.parent_id,
       content: comments.content,
